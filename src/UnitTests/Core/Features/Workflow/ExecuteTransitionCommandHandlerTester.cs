@@ -2,13 +2,14 @@
 using ClearMeasure.Bootcamp.Core.Features.Workflow;
 using ClearMeasure.Bootcamp.Core.Model;
 using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ClearMeasure.Bootcamp.UnitTests.Core.Features.Workflow
 {
-    [TestFixture]
+    [TestFixture, TestClass]
     public class ExecuteTransitionCommandHandlerTester
     {
-        [Test, Explicit("refactor needed")]
+        [Test, Explicit("refactor needed"), TestMethod]
         public void ShouldExecuteDraftTransition()
         {
             var report = new ExpenseReport();

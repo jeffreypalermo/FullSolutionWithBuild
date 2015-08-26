@@ -7,15 +7,18 @@ using ClearMeasure.Bootcamp.DataAccess.Mappings;
 using ClearMeasure.Bootcamp.IntegrationTests.DataAccess;
 using ClearMeasure.Bootcamp.UI.DependencyResolution;
 using NHibernate;
-using NUnit.Framework;
 using StructureMap;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Test = Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute;
+using TestFixture = Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute;
 
 namespace ClearMeasure.Bootcamp.IntegrationTests.Core.Features.Workflow
 {
-    [TestFixture]
+    [@TestFixture]
     public class ExecuteTransitionCommandHandlerIntegratedTester
     {
-        [Test]
+        [@Test]
         public void ShouldExecuteDraftTransition()
         {
             new DatabaseTester().Clean();
@@ -44,7 +47,7 @@ namespace ClearMeasure.Bootcamp.IntegrationTests.Core.Features.Workflow
         }
 
 
-        [Test]
+        [@Test]
         public void ShouldPersistExportReportFact()
         {
             new DatabaseTester().Clean();
