@@ -48,7 +48,7 @@ namespace ClearMeasure.Bootcamp.UnitTests.Core.Model.ExpenseReportWorkflow
             order.Submitter = employee;
 
             var command = new ApprovedToCancelledCommand();
-            Assert.That(command.IsValid(new ExecuteTransitionCommand{Report2 = order, CurrentUser2 = employee}), Is.False);
+            Assert.That(command.IsValid(new ExecuteTransitionCommand{Report = order, CurrentUser = employee}), Is.False);
         }
 
         [Test]
@@ -63,10 +63,10 @@ namespace ClearMeasure.Bootcamp.UnitTests.Core.Model.ExpenseReportWorkflow
             order.Approver = approver;
 
             var command = new ApprovedToCancelledCommand();
-            Assert.That(command.IsValid(new ExecuteTransitionCommand { Report2 = order, CurrentUser2 = approver }), Is.False);
+            Assert.That(command.IsValid(new ExecuteTransitionCommand { Report = order, CurrentUser = approver }), Is.False);
 
             var command2 = new ApprovedToCancelledCommand();
-            Assert.That(command2.IsValid(new ExecuteTransitionCommand { Report2 = order, CurrentUser2 = differentEmployee }), Is.False);
+            Assert.That(command2.IsValid(new ExecuteTransitionCommand { Report = order, CurrentUser = differentEmployee }), Is.False);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace ClearMeasure.Bootcamp.UnitTests.Core.Model.ExpenseReportWorkflow
             order.Submitter = employee;
 
             var command = new ApprovedToCancelledCommand();
-            Assert.That(command.IsValid(new ExecuteTransitionCommand { Report2 = order, CurrentUser2 = employee }), Is.True);
+            Assert.That(command.IsValid(new ExecuteTransitionCommand { Report = order, CurrentUser = employee }), Is.True);
         }
 
         [Test]

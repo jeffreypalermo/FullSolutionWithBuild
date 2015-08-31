@@ -17,19 +17,19 @@ namespace ClearMeasure.Bootcamp.Core.Model.ExpenseReportWorkflow
 
         public bool IsValid(ExecuteTransitionCommand transitionCommand)
         {
-            bool beginStatusMatches = transitionCommand.Report2.Status.Equals(GetBeginStatus());
-            bool currentUserIsCorrectRole = userCanExecute(transitionCommand.CurrentUser2, transitionCommand.Report2);
+            bool beginStatusMatches = transitionCommand.Report.Status.Equals(GetBeginStatus());
+            bool currentUserIsCorrectRole = userCanExecute(transitionCommand.CurrentUser, transitionCommand.Report);
             return beginStatusMatches && currentUserIsCorrectRole;
         }
 
         public ExecuteTransitionResult Execute(ExecuteTransitionCommand transitionCommand)
         {
             preExecute(transitionCommand);
-            string currentUserFullName = transitionCommand.CurrentUser2.GetFullName();
-            transitionCommand.Report2.ChangeStatus(transitionCommand.CurrentUser2, transitionCommand.CurrentDate2, GetBeginStatus(), GetEndStatus());
+            string currentUserFullName = transitionCommand.CurrentUser.GetFullName();
+            transitionCommand.Report.ChangeStatus(transitionCommand.CurrentUser, transitionCommand.CurrentDate, GetBeginStatus(), GetEndStatus());
 
             string loweredTransitionVerb = TransitionVerbPastTense.ToLower();
-            string reportNumber = transitionCommand.Report2.Number;
+            string reportNumber = transitionCommand.Report.Number;
             string message = string.Format("You have {0} work order {1}", loweredTransitionVerb, reportNumber);
             string debugMessage = string.Format("{0} has {1} work order {2}", currentUserFullName, loweredTransitionVerb,
                 reportNumber);

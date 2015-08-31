@@ -38,7 +38,7 @@ namespace ClearMeasure.Bootcamp.Core.Model.ExpenseReportWorkflow
 
         protected override void preExecute(ExecuteTransitionCommand transitionCommand)
         {
-            transitionCommand.Report2.LastApproved = transitionCommand.CurrentDate2;
+            transitionCommand.Report.LastApproved = transitionCommand.CurrentDate;
         }
     }
 }

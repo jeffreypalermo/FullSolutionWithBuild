@@ -10,8 +10,8 @@ namespace ClearMeasure.Bootcamp.Core.Model.ExpenseReportWorkflow
 
         protected override void preExecute(ExecuteTransitionCommand transitionCommand)
         {
-            transitionCommand.Report2.LastCancelled =
-                transitionCommand.Report2.LastWithdrawn = transitionCommand.CurrentDate2;
+            transitionCommand.Report.LastCancelled =
+                transitionCommand.Report.LastWithdrawn = transitionCommand.CurrentDate;
         }
 
         public override string TransitionVerbPresentTense
