@@ -37,10 +37,10 @@ namespace ClearMeasure.Bootcamp.Core.Model.ExpenseReportWorkflow
 
         protected override void preExecute(ExecuteTransitionCommand transitionCommand)
         {
-            transitionCommand.Report.LastSubmitted = transitionCommand.CurrentDate;
-            if (transitionCommand.Report.FirstSubmitted == null)
+            transitionCommand.Report2.LastSubmitted = transitionCommand.CurrentDate2;
+            if (transitionCommand.Report2.FirstSubmitted == null)
             {
-                transitionCommand.Report.FirstSubmitted = transitionCommand.CurrentDate;
+                transitionCommand.Report2.FirstSubmitted = transitionCommand.CurrentDate2;
             }
         }
     }

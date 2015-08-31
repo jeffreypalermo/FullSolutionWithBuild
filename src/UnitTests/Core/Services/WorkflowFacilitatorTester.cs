@@ -18,7 +18,7 @@ namespace ClearMeasure.Bootcamp.UnitTests.Core.Services
             var facilitator = new WorkflowFacilitator();
             var report = new ExpenseReport();
             var employee = new Employee();
-            IStateCommand[] commands = facilitator.GetValidStateCommands(new ExecuteTransitionCommand{Report = report, CurrentUser = employee});
+            IStateCommand[] commands = facilitator.GetValidStateCommands(new ExecuteTransitionCommand{Report2 = report, CurrentUser2 = employee});
 
             Assert.That(commands.Length, Is.EqualTo(0));
         }

@@ -24,12 +24,12 @@ namespace ClearMeasure.Bootcamp.Core.Features.Workflow
 
             matchingCommand.Execute(command);
 
-            _bus.Send(new ExpenseReportSaveCommand {ExpenseReport = command.Report});
-            _bus.Send(new AddExpenseReportFactCommand(new ExpenseReportFact(command.Report, command.CurrentDate)));
+            _bus.Send(new ExpenseReportSaveCommand {ExpenseReport = command.Report2});
+            _bus.Send(new AddExpenseReportFactCommand(new ExpenseReportFact(command.Report2, command.CurrentDate2)));
 
             return new ExecuteTransitionResult
             {
-                NewStatus = command.Report.Status.FriendlyName,
+                NewStatus = command.Report2.Status.FriendlyName,
                 NextStep = NextStep.Edit
             };
         }

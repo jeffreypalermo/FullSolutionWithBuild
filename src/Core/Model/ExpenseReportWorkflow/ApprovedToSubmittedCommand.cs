@@ -39,7 +39,7 @@ namespace ClearMeasure.Bootcamp.Core.Model.ExpenseReportWorkflow
         protected override void preExecute(ExecuteTransitionCommand transitionCommand)
         {
             base.preExecute(transitionCommand);
-            transitionCommand.Report.LastDeclined = transitionCommand.CurrentDate;
+            transitionCommand.Report2.LastDeclined = transitionCommand.CurrentDate2;
         }
     }
 }
