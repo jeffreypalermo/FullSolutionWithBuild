@@ -24,18 +24,35 @@
      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance or retrieve an administrator password",
      "Type" : "String"
    },
-   "AdminPassword"       : {
+   "AdminUser" : {
+     "Description" : "User for the instance Administrator user account",
+     "Type"        : "String",
+     "Default"     : "cm_admin"
+   },
+   "AdminPassword" : {
      "Description" : "Password for the instance Administrator user account",
      "Type"        : "String"
    },
-   "SQLAdminUser"       : {
+   "SQLAdminUser" : {
      "Description" : "User for the Administrator user account",
      "Type"        : "String",
-     "Default"     : "ls_admin"
+     "Default"     : "cm_admin"
    },
-   "SQLAdminPassword"       : {
+   "SQLAdminPassword": {
      "Description" : "Password for the Administrator user account - Found in Octopus Deploy http://build.ls-api.com:7070/app#/library/variables/LibraryVariableSets-4",
      "Type"        : "String"
+   },
+   "RDSStorageSize" : {
+     "Description" : "Size of RDS storage in GB.",
+     "Type" : "String",
+     "Default" : "5"
+    },
+    "RDSInstanceType" : {
+     "Description" : "Type of RDS instance to launch.",
+     "Type" : "String",
+     "Default" : "t2.small",
+     "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
+     "ConstraintDescription" : "must be a valid EC2 instance type."
    },
    "NginxServerInstanceType" : {
      "Description" : "Type of EC2 instance to launch.",
@@ -44,13 +61,54 @@
      "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
      "ConstraintDescription" : "must be a valid EC2 instance type."
    },
-   "ApiServerInstanceType" : {
+   "WebServerInstanceType" : {
      "Description" : "Type of EC2 instance to launch.",
      "Type" : "String",
      "Default" : "t2.small",
      "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
      "ConstraintDescription" : "must be a valid EC2 instance type."
-   }
+   },
+   "ApiVersion" : {
+      "Description" : "The Initial version of software to load with each new instance of Api Server",
+      "Type" : "String"
+    },
+    "NSBVersion" : {
+      "Description" : "The Initial version of software to load with each new instance of NSB Server",
+      "Type" : "String"
+    },
+    "DatabaseVersion" : {
+      "Description" : "The Initial version of software to load with each new instance of NSB Server",
+      "Type" : "String"
+    },
+    "OctoServerApiKey" : {
+      "Description" : "Your Octopus Server API Key",
+      "Type" : "String"
+    },
+    "OctoServerThumbprint" : {
+      "Description" : "Your Octopus Server Thumbprint",
+      "Type" : "String"
+    },
+    "OctoServerEnvironmentName" : {
+      "Description" : "The Octopus Deploy Environment the Server will join",
+      "Type" : "String"
+    },
+    "OctoServerURL" : {
+      "Description" : "Your Octopus Server URL",
+      "Default" : "http://build.clear-measure.com:7070/",
+      "Type" : "String"
+    },
+    "NewRelicLicenseKey" : {
+      "Description" : "Your New Relic License Key",
+      "Type" : "String"
+    },
+    "LogEntriesAPIKey" : {
+      "Description" : "Your Log Entries API Key",
+      "Type" : "String"
+    },
+    "LogEntriesGroupName" : {
+      "Description" : "Your Log Entries License Key",
+      "Type" : "String"
+    }
   },
   "Resources": {
     "ApplicationVPC": {
@@ -472,7 +530,7 @@
       "Properties": {
         "AssociatePublicIpAddress": true,
         "ImageId": "ami-d05e75b8",
-        "InstanceType": "t2.micro",
+        "InstanceType": { "Ref": "NginxServerInstanceType" },
         "KeyName": { "Ref": "KeyName" },
         "IamInstanceProfile": "bootcamp-config-role",
         "SecurityGroups": [
@@ -495,8 +553,57 @@
       "Properties": {
         "AssociatePublicIpAddress": true,
         "ImageId": "ami-cd9339a6",
-        "InstanceType": "t2.micro",
+        "InstanceType": { "Ref": "WebServerInstanceType" },
         "KeyName": { "Ref": "KeyName" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "<powershell>",
+                "Set-ExecutionPolicy Unrestricted -Force",
+                "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))",
+                "$adminPassword = \"",{ "Ref" : "AdminPassword" },"\"",
+                "$adminPassword = $adminPassword.Trim()",
+                "$environmentType = \"",{ "Ref" : "EnvironmentType" },"\"",
+                "$environmentType = $environment.Trim()",
+                "$environmentName = \"",{ "Ref" : "EnvironmentName" },"\"",
+                "$environmentName = $environmentName.Trim()",
+                "$octoServerEnvironmentName = \"",{ "Ref" : "OctoServerEnvironmentName" },"\"",
+                "$octoServerEnvironmentName = $octoServerEnvironmentName.Trim()",
+                "$octoServerUrl = \"",{ "Ref" : "OctoServerURL" },"\"",
+                "$octoServerUrl = $octoServerUrl.Trim()",
+                "$octoServerApiKey = \"",{ "Ref" : "OctoServerApiKey" },"\"",
+                "$octoServerApiKey = $octoServerApiKey.Trim()",
+                "$octoServerThumbprint = \"",{ "Ref" : "OctoServerThumbprint" },"\"",
+                "$octoServerThumbprint = $octoServerThumbprint.Trim()",
+                "$apiVersion = \"",{ "Ref" : "ApiVersion" },"\"",
+                "$apiVersion = $apiVersion.Trim()",
+                "$newRelicLicenseKey = \"",{ "Ref" : "NewRelicLicenseKey" },"\"",
+                "$newRelicLicenseKey = $newRelicLicenseKey.Trim()",
+                "$logEntriesAPIKey = \"",{ "Ref" : "LogEntriesAPIKey" },"\"",
+                "$logEntriesAPIKey = $logEntriesAPIKey.Trim()",
+                "$logEntriesGroupName = \"",{ "Ref" : "LogEntriesGroupName" },"\"",
+                "$logEntriesGroupName = $logEntriesGroupName.Trim()",
+                "([adsi](\"WinNT://$env:COMPUTERNAME/administrator, user\")).psbase.invoke('SetPassword', $adminPassword)",
+                "[Environment]::SetEnvironmentVariable(\"NEWRELIC_KEY\", $newRelicLicenseKey , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"LOGENTRIES_GROUP\", $logEntriesGroupName , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"LOGENTRIES_KEY\", $logEntriesAPIKey , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"ENVIRONMENT_TYPE\", $environment , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_ENV\", $octoServerEnvironmentName , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_URL\", $octoServerUrl , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_APIKEY\", $octoServerApiKey , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_THUMBPRINT\", $octoServerThumbprint , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_VERSION\", $apiVersion , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_PROJECT\", \"LightSail Api\" , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_ROLE\", \"API-Server\" , \"Machine\")",
+                "# Copy-S3Object",
+                "cinst api-server-role -source 'C:\\InstallPackages'" ,
+                "</powershell>","\n"
+            ]
+            ]
+          }
+        },
         "IamInstanceProfile": "bootcamp-config-role",
         "SecurityGroups": [
           {
@@ -622,16 +729,16 @@
     "RDSSQLServer": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
-        "AllocatedStorage": "20",
+        "AllocatedStorage": { "Ref" : "RDSStorageSize" },
         "AllowMajorVersionUpgrade": "false",
         "AutoMinorVersionUpgrade": "true",
-        "DBInstanceClass": "db.t2.micro",
+        "DBInstanceClass": { "Ref" : "RDSInstanceType" },
         "Port": "1433",
         "PubliclyAccessible": "true",
         "StorageType": "gp2",
         "BackupRetentionPeriod": "7",
-        "MasterUsername": "cmadmin",
-        "MasterUserPassword": "MyPassword",
+        "MasterUsername": { "Ref" : "SQLAdminUser" },
+        "MasterUserPassword": { "Ref" : "SQLAdminPassword" },
         "PreferredBackupWindow": "05:08-05:38",
         "PreferredMaintenanceWindow": "sun:08:13-sun:08:43",
         "Engine": "sqlserver-ex",
