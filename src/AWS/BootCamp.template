@@ -1,5 +1,26 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+   "AvailabilityZoneA": {
+     "Description": "Availability Zone A",
+     "Type": "AWS::EC2::AvailabilityZone::Name"
+   },
+   "AvailabilityZoneB": {
+     "Description": "Availability Zone B",
+     "Type": "AWS::EC2::AvailabilityZone::Name"
+   },
+   "EnvironmentType" : {
+   "Description" : "Select an Environment Type. This will determine certain server configurations such as New Relic",
+   "Default" : "DEV",
+   "AllowedValues" : [ "DEV", "INT", "QA", "PERF", "UAT", "PROD"],
+   "Type" : "String"
+   },
+   "EnvironmentName" : {
+   "Description" : "Choose a unique name for the environment. This will be used to tag the environment for easier resource tracking",
+   "Default" : "DEV",
+   "Type" : "String"
+   }
+ },
   "Resources": {
     "ApplicationVPC": {
       "Type": "AWS::EC2::VPC",
@@ -20,7 +41,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "10.0.3.0/24",
-        "AvailabilityZone": "us-east-1b",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneB" },
         "VpcId": {
           "Ref": "ApplicationVPC"
         },
@@ -31,7 +52,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Public subnet B"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Public Subnet B" ]] }
           }
         ]
       }
@@ -40,7 +61,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "10.0.2.0/24",
-        "AvailabilityZone": "us-east-1a",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneA" },
         "VpcId": {
           "Ref": "ApplicationVPC"
         },
@@ -51,7 +72,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Private subnet A"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Private Subnet A" ]] }
           }
         ]
       }
@@ -60,14 +81,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "10.0.1.0/24",
-        "AvailabilityZone": "us-east-1a",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneA" },
         "VpcId": {
           "Ref": "ApplicationVPC"
         },
         "Tags": [
           {
             "Key": "Name",
-            "Value": "Public subnet A"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Public Subnet A" ]] }
           },
           {
             "Key": "Environment",
@@ -80,14 +101,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "10.0.4.0/24",
-        "AvailabilityZone": "us-east-1b",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneB" },
         "VpcId": {
           "Ref": "ApplicationVPC"
         },
         "Tags": [
           {
             "Key": "Name",
-            "Value": "Private subnet B"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Private Subnet B" ]] }
           },
           {
             "Key": "Environment",
@@ -106,7 +127,7 @@
           },
           {
             "Key": "Name",
-            "Value": "VPC Gateway"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- VPC IGW" ]] }
           }
         ]
       }
@@ -117,7 +138,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "DHCP Options"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- DHCP Options" ]] }
           },
           {
             "Key": "Environment",
@@ -139,7 +160,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "Network ACL"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Network ACL" ]] }
           },
           {
             "Key": "Environment",
@@ -161,7 +182,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Private Subnet A Routing"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Private Subnet A Routing" ]] }
           }
         ]
       }
@@ -175,7 +196,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "Private Subnet B Routing"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Private Subnet B Routing" ]] }
           },
           {
             "Key": "Environment",
@@ -197,7 +218,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Public Subnet Routing"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Public Subnet Routing" ]] }
           }
         ]
       }
@@ -248,7 +269,7 @@
           },
           {
             "Key": "Name",
-            "Value": "BootCamp ELB"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- BootCamp ELB" ]] }
           }
         ]
       }
@@ -300,7 +321,7 @@
           },
           {
             "Key": "Name",
-            "Value": "BootCamp Internal ELB"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- BootCamp Internal ELB" ]] }
           }
         ]
       }
@@ -327,8 +348,8 @@
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "AvailabilityZones": [
-          "us-east-1b",
-          "us-east-1a"
+          { "Ref" : "AvailabilityZoneB" },
+          { "Ref" : "AvailabilityZoneA" }
         ],
         "Cooldown": "300",
         "DesiredCapacity": "2",
@@ -360,7 +381,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Nginx Server",
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Nginx Server" ]] },
             "PropagateAtLaunch": true
           }
         ],
@@ -373,8 +394,8 @@
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "AvailabilityZones": [
-          "us-east-1b",
-          "us-east-1a"
+          { "Ref" : "AvailabilityZoneB" },
+          { "Ref" : "AvailabilityZoneA" }
         ],
         "Cooldown": "300",
         "DesiredCapacity": "2",
@@ -406,7 +427,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Web Server",
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Web Server" ]] },
             "PropagateAtLaunch": true
           }
         ],
@@ -479,7 +500,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "NAT Instance"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- NAT Instance B" ]] }
           },
           {
             "Key": "Environment",
@@ -525,7 +546,7 @@
           },
           {
             "Key": "Name",
-            "Value": "NAT Instance"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- NAT Instance A" ]] }
           }
         ],
         "NetworkInterfaces": [
@@ -554,7 +575,7 @@
     "WebServerBDataVolume": {
       "Type": "AWS::EC2::Volume",
       "Properties": {
-        "AvailabilityZone": "us-east-1b",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneB" },
         "Size": "30",
         "VolumeType": "gp2"
       }
@@ -562,7 +583,7 @@
     "WebServerADataVolume": {
       "Type": "AWS::EC2::Volume",
       "Properties": {
-        "AvailabilityZone": "us-east-1a",
+        "AvailabilityZone": { "Ref" : "AvailabilityZoneA" },
         "Size": "30",
         "VolumeType": "gp2"
       }
@@ -623,7 +644,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Nginx Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Nginx Security Group" ]] }
           }
         ]
       }
@@ -642,7 +663,7 @@
           },
           {
             "Key": "Name",
-            "Value": "NAT Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- NAT Security Group" ]] }
           }
         ]
       }
@@ -657,7 +678,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "RDS Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- RDS Security Group" ]] }
           },
           {
             "Key": "Environment",
@@ -680,7 +701,7 @@
           },
           {
             "Key": "Name",
-            "Value": "Internal ELB Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Internal ELB Security Group" ]] }
           }
         ]
       }
@@ -695,7 +716,7 @@
         "Tags": [
           {
             "Key": "Name",
-            "Value": "Default Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Default Security Group" ]] }
           },
           {
             "Key": "Environment",
@@ -718,7 +739,7 @@
           },
           {
             "Key": "Name",
-            "Value": "External ELB Security Group"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- External ELB Security Group" ]] }
           }
         ]
       }
@@ -737,7 +758,7 @@
           },
           {
             "Key": "Name",
-            "Value": "WebServerSecurityGroup"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- Web Server Security Group" ]] }
           }
         ]
       }
