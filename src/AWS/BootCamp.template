@@ -473,7 +473,7 @@
         "AssociatePublicIpAddress": true,
         "ImageId": "ami-d05e75b8",
         "InstanceType": "t2.micro",
-        "KeyName": "CM-DevOps",
+        "KeyName": { Ref: "KeyName" },
         "IamInstanceProfile": "bootcamp-config-role",
         "SecurityGroups": [
           {
@@ -496,7 +496,7 @@
         "AssociatePublicIpAddress": true,
         "ImageId": "ami-cd9339a6",
         "InstanceType": "t2.micro",
-        "KeyName": "CM-DevOps",
+        "KeyName": { Ref: "KeyName" },
         "IamInstanceProfile": "bootcamp-config-role",
         "SecurityGroups": [
           {
@@ -526,7 +526,7 @@
         "InstanceInitiatedShutdownBehavior": "stop",
         "ImageId": "ami-303b1458",
         "InstanceType": "t2.micro",
-        "KeyName": "CM-DevOps",
+        "KeyName": { Ref: "KeyName" },
         "Monitoring": "false",
         "Tags": [
           {
@@ -568,7 +568,7 @@
         "InstanceInitiatedShutdownBehavior": "stop",
         "ImageId": "ami-303b1458",
         "InstanceType": "t2.micro",
-        "KeyName": "CM-DevOps",
+        "KeyName": { Ref: "KeyName" },
         "Monitoring": "false",
         "Tags": [
           {
