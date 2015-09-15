@@ -10,17 +10,48 @@
      "Type": "AWS::EC2::AvailabilityZone::Name"
    },
    "EnvironmentType" : {
-   "Description" : "Select an Environment Type. This will determine certain server configurations such as New Relic",
-   "Default" : "DEV",
-   "AllowedValues" : [ "DEV", "INT", "QA", "PERF", "UAT", "PROD"],
-   "Type" : "String"
+     "Description" : "Select an Environment Type. This will determine certain server configurations such as New Relic",
+     "Default" : "DEV",
+     "AllowedValues" : [ "DEV", "INT", "QA", "PERF", "UAT", "PROD"],
+     "Type" : "String"
    },
    "EnvironmentName" : {
-   "Description" : "Choose a unique name for the environment. This will be used to tag the environment for easier resource tracking",
-   "Default" : "DEV",
-   "Type" : "String"
-   }
- },
+     "Description" : "Choose a unique name for the environment. This will be used to tag the environment for easier resource tracking",
+     "Default" : "DEV",
+     "Type" : "String"
+   },
+   "KeyName" : {
+     "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance or retrieve an administrator password",
+     "Type" : "String"
+   },
+   "AdminPassword"       : {
+     "Description" : "Password for the instance Administrator user account",
+     "Type"        : "String"
+   },
+   "SQLAdminUser"       : {
+     "Description" : "User for the Administrator user account",
+     "Type"        : "String",
+     "Default"     : "ls_admin"
+   },
+   "SQLAdminPassword"       : {
+     "Description" : "Password for the Administrator user account - Found in Octopus Deploy http://build.ls-api.com:7070/app#/library/variables/LibraryVariableSets-4",
+     "Type"        : "String"
+   },
+   "NginxServerInstanceType" : {
+     "Description" : "Type of EC2 instance to launch.",
+     "Type" : "String",
+     "Default" : "t2.small",
+     "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
+     "ConstraintDescription" : "must be a valid EC2 instance type."
+   },
+   "ApiServerInstanceType" : {
+     "Description" : "Type of EC2 instance to launch.",
+     "Type" : "String",
+     "Default" : "t2.small",
+     "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
+     "ConstraintDescription" : "must be a valid EC2 instance type."
+   },
+  },
   "Resources": {
     "ApplicationVPC": {
       "Type": "AWS::EC2::VPC",
@@ -627,7 +658,7 @@
           {
             "Ref": "PrivateSubnetB"
           }
-        ]
+        ],
       }
     },
     "NginxSecurityGroup": {
