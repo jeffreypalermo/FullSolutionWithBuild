@@ -1,0 +1,1354 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "ApplicationVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "BootCamp"
+          }
+        ]
+      }
+    },
+    "PublicSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.3.0/24",
+        "AvailabilityZone": "us-east-1b",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Public subnet B"
+          }
+        ]
+      }
+    },
+    "PrivateSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.2.0/24",
+        "AvailabilityZone": "us-east-1a",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Private subnet A"
+          }
+        ]
+      }
+    },
+    "PublicSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.1.0/24",
+        "AvailabilityZone": "us-east-1a",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Public subnet A"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "PrivateSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.4.0/24",
+        "AvailabilityZone": "us-east-1b",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private subnet B"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "VPCInternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "VPC Gateway"
+          }
+        ]
+      }
+    },
+    "VPCDHCPOptions": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DHCP Options"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ],
+        "DomainName": "ec2.internal",
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      }
+    },
+    "DefaultNetworkACL": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Network ACL"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "PrivateSubnetARouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Private Subnet A Routing"
+          }
+        ]
+      }
+    },
+    "PrivateSubnetBRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private Subnet B Routing"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "PublicSubnetRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Public Subnet Routing"
+          }
+        ]
+      }
+    },
+    "ExternalLoadBalancerToRevProxyServers": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "Subnets": [
+          {
+            "Ref": "PublicSubnetB"
+          },
+          {
+            "Ref": "PublicSubnetA"
+          }
+        ],
+        "HealthCheck": {
+          "HealthyThreshold": "10",
+          "Interval": "30",
+          "Target": "HTTP:80/index.html",
+          "Timeout": "5",
+          "UnhealthyThreshold": "2"
+        },
+        "ConnectionDrainingPolicy": {
+          "Enabled": "true",
+          "Timeout": "300"
+        },
+        "ConnectionSettings": {
+          "IdleTimeout": "60"
+        },
+        "CrossZone": "true",
+        "SecurityGroups": [
+          {
+            "Ref": "ExternalELBSecurityGroup"
+          }
+        ],
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "BootCamp ELB"
+          }
+        ]
+      }
+    },
+    "InternalLoadBalancerToWebServers": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "Scheme": "internal",
+        "Subnets": [
+          {
+            "Ref": "PublicSubnetB"
+          },
+          {
+            "Ref": "PublicSubnetA"
+          }
+        ],
+        "HealthCheck": {
+          "HealthyThreshold": "10",
+          "Interval": "30",
+          "Target": "HTTP:80/index.html",
+          "Timeout": "5",
+          "UnhealthyThreshold": "2"
+        },
+        "ConnectionDrainingPolicy": {
+          "Enabled": "true",
+          "Timeout": "300"
+        },
+        "ConnectionSettings": {
+          "IdleTimeout": "60"
+        },
+        "CrossZone": "true",
+        "SecurityGroups": [
+          {
+            "Ref": "InternalELBSecurityGroup"
+          }
+        ],
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "BootCamp Internal ELB"
+          }
+        ]
+      }
+    },
+    "NATAElasticIP": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": [
+        "gw1"
+      ],
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "NATBElasticIP": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": [
+        "gw1"
+      ],
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "NginxAutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          "us-east-1b",
+          "us-east-1a"
+        ],
+        "Cooldown": "300",
+        "DesiredCapacity": "2",
+        "HealthCheckGracePeriod": "300",
+        "HealthCheckType": "EC2",
+        "MaxSize": "10",
+        "MinSize": "2",
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PublicSubnetB"
+          },
+          {
+            "Ref": "PublicSubnetA"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "NginxLaunchConfiguration"
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "ExternalLoadBalancerToRevProxyServers"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev",
+            "PropagateAtLaunch": true
+          },
+          {
+            "Key": "Name",
+            "Value": "Nginx Server",
+            "PropagateAtLaunch": true
+          }
+        ],
+        "TerminationPolicies": [
+          "Default"
+        ]
+      }
+    },
+    "WebServerAutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          "us-east-1b",
+          "us-east-1a"
+        ],
+        "Cooldown": "300",
+        "DesiredCapacity": "2",
+        "HealthCheckGracePeriod": "300",
+        "HealthCheckType": "EC2",
+        "MaxSize": "10",
+        "MinSize": "2",
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PublicSubnetB"
+          },
+          {
+            "Ref": "PublicSubnetA"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "WebServerLaunchConfiguration"
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "InternalLoadBalancerToWebServers"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev",
+            "PropagateAtLaunch": true
+          },
+          {
+            "Key": "Name",
+            "Value": "Web Server",
+            "PropagateAtLaunch": true
+          }
+        ],
+        "TerminationPolicies": [
+          "Default"
+        ]
+      }
+    },
+    "NginxLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "ImageId": "ami-d05e75b8",
+        "InstanceType": "t2.micro",
+        "KeyName": "CM-DevOps",
+        "IamInstanceProfile": "bootcamp-config-role",
+        "SecurityGroups": [
+          {
+            "Ref": "NginxSecurityGroup"
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": 8
+            }
+          }
+        ]
+      }
+    },
+    "WebServerLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "ImageId": "ami-cd9339a6",
+        "InstanceType": "t2.micro",
+        "KeyName": "CM-DevOps",
+        "IamInstanceProfile": "bootcamp-config-role",
+        "SecurityGroups": [
+          {
+            "Ref": "WebServerSecurityGroup"
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": 30
+            }
+          },
+          {
+            "DeviceName": "xvdb",
+            "Ebs": {
+              "VolumeSize": 30
+            }
+          }
+        ]
+      }
+    },
+    "NATInstanceB": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "ImageId": "ami-303b1458",
+        "InstanceType": "t2.micro",
+        "KeyName": "CM-DevOps",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "NAT Instance"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "PublicSubnetB"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "10.0.3.79",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "NATSecurityGroup"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "NATInstanceA": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "ImageId": "ami-303b1458",
+        "InstanceType": "t2.micro",
+        "KeyName": "CM-DevOps",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "NAT Instance"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "PublicSubnetA"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "10.0.1.244",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "NATSecurityGroup"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "WebServerBDataVolume": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "AvailabilityZone": "us-east-1b",
+        "Size": "30",
+        "VolumeType": "gp2"
+      }
+    },
+    "WebServerADataVolume": {
+      "Type": "AWS::EC2::Volume",
+      "Properties": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": "30",
+        "VolumeType": "gp2"
+      }
+    },
+    "RDSSQLServer": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "AllocatedStorage": "20",
+        "AllowMajorVersionUpgrade": "false",
+        "AutoMinorVersionUpgrade": "true",
+        "DBInstanceClass": "db.t2.micro",
+        "Port": "1433",
+        "PubliclyAccessible": "true",
+        "StorageType": "gp2",
+        "BackupRetentionPeriod": "7",
+        "MasterUsername": "cmadmin",
+        "MasterUserPassword": "MyPassword",
+        "PreferredBackupWindow": "05:08-05:38",
+        "PreferredMaintenanceWindow": "sun:08:13-sun:08:43",
+        "Engine": "sqlserver-ex",
+        "EngineVersion": "11.00.5058.0.v1",
+        "LicenseModel": "license-included",
+        "DBSubnetGroupName": {
+          "Ref": "RDSSubnetGroup"
+        },
+        "VPCSecurityGroups": [
+          {
+            "Ref": "RDSSecurityGroup"
+          }
+        ]
+      }
+    },
+    "RDSSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "RDS Subnet Group",
+        "SubnetIds": [
+          {
+            "Ref": "PrivateSubnetA"
+          },
+          {
+            "Ref": "PrivateSubnetB"
+          }
+        ]
+      }
+    },
+    "NginxSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "NginxSecurityGroup",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Nginx Security Group"
+          }
+        ]
+      }
+    },
+    "NATSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Passes traffic from private subnets to the NAT instances",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "NAT Security Group"
+          }
+        ]
+      }
+    },
+    "RDSSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Created from the RDS Management Console",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "RDS Security Group"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "InternalELBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Internal Security Group match web site",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "Internal ELB Security Group"
+          }
+        ]
+      }
+    },
+    "DefaultSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "default VPC security group",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Default Security Group"
+          },
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          }
+        ]
+      }
+    },
+    "ExternalELBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Should match ports open to Nginx",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "External ELB Security Group"
+          }
+        ]
+      }
+    },
+    "WebServerSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "WebServerSecurityGroup",
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "BootCampDev"
+          },
+          {
+            "Key": "Name",
+            "Value": "WebServerSecurityGroup"
+          }
+        ]
+      }
+    },
+    "NginxScalingDecreaseGroupSize": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "ScalingAdjustment" : 1,
+        "AutoScalingGroupName": {
+          "Ref": "NginxAutoScalingGroup"
+        }
+      }
+    },
+    "WebServerScalingIncreaseGroupSize": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "ScalingAdjustment" : 2,
+        "AutoScalingGroupName": {
+          "Ref": "WebServerAutoScalingGroup"
+        }
+      }
+    },
+    "NginxAutoScalingGroupLowNetworkInAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "EvaluationPeriods": "1",
+        "MetricName": "NetworkIn",
+        "Namespace": "AWS/EC2",
+        "Period": "300",
+        "Statistic": "Sum",
+        "Threshold": "8000000.0",
+        "AlarmActions": [
+          {
+            "Ref": "NginxScalingDecreaseGroupSize"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": "NginxAutoScalingGroup"
+          }
+        ]
+      }
+    },
+    "WebServerAutoScalingGroupCPUUtilizationAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": "1",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Period": "300",
+        "Statistic": "Average",
+        "Threshold": "80.0",
+        "AlarmActions": [
+          {
+            "Ref": "WebServerScalingIncreaseGroupSize"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": "WebServerAutoScalingGroup"
+          }
+        ]
+      }
+    },
+    "WebServerAutoScalingGroupLowCPUUtilizationAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "ComparisonOperator": "LessThanOrEqualToThreshold",
+        "EvaluationPeriods": "1",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Period": "300",
+        "Statistic": "Average",
+        "Threshold": "25.0",
+        "AlarmActions": [
+          {
+            "Ref": "NginxScalingDecreaseGroupSize"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": "WebServerAutoScalingGroup"
+          }
+        ]
+      }
+    },
+    "acl1": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        }
+      }
+    },
+    "acl2": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        }
+      }
+    },
+    "subnetacl1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetA"
+        }
+      }
+    },
+    "subnetacl2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetB"
+        }
+      }
+    },
+    "subnetacl3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetB"
+        }
+      }
+    },
+    "subnetacl4": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DefaultNetworkACL"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetA"
+        }
+      }
+    },
+    "gw1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "VPCInternetGateway"
+        }
+      }
+    },
+    "subnetroute2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateSubnetARouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetA"
+        }
+      }
+    },
+    "subnetroute3": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateSubnetBRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetB"
+        }
+      }
+    },
+    "subnetroute4": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicSubnetRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetB"
+        }
+      }
+    },
+    "subnetroute5": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicSubnetRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetA"
+        }
+      }
+    },
+    "route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PrivateSubnetARouteTable"
+        },
+        "InstanceId": {
+          "Ref": "NATInstanceA"
+        }
+      }
+    },
+    "route2": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PrivateSubnetBRouteTable"
+        },
+        "InstanceId": {
+          "Ref": "NATInstanceB"
+        }
+      }
+    },
+    "route3": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PublicSubnetRouteTable"
+        },
+        "GatewayId": {
+          "Ref": "VPCInternetGateway"
+        }
+      },
+      "DependsOn": "gw1"
+    },
+    "dchpassoc1": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": {
+          "Ref": "ApplicationVPC"
+        },
+        "DhcpOptionsId": {
+          "Ref": "VPCDHCPOptions"
+        }
+      }
+    },
+    "assoc1": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "DependsOn" : "NATInstanceA",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NATAElasticIP",
+            "AllocationId"
+          ]
+        },
+        "InstanceId": {
+          "Ref": "NATInstanceA"
+        }
+      }
+    },
+    "assoc2": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "DependsOn" : "NATInstanceB",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NATBElasticIP",
+            "AllocationId"
+          ]
+        },
+        "InstanceId": {
+          "Ref": "NATInstanceB"
+        }
+      }
+    },
+    "ingress1": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NginxSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "SourceSecurityGroupId": {
+          "Ref": "ExternalELBSecurityGroup"
+        },
+        "SourceSecurityGroupOwnerId": "611364622323"
+      }
+    },
+    "ingress2": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NginxSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "CidrIp": "66.162.93.230/32"
+      }
+    },
+    "ingress3": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NginxSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "443",
+        "ToPort": "443",
+        "SourceSecurityGroupId": {
+          "Ref": "ExternalELBSecurityGroup"
+        },
+        "SourceSecurityGroupOwnerId": "611364622323"
+      }
+    },
+    "ingress4": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NATSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "CidrIp": "66.162.93.230/32"
+      }
+    },
+    "ingress5": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NATSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "10.0.2.0/24"
+      }
+    },
+    "ingress6": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NATSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "10.0.4.0/24"
+      }
+    },
+    "ingress7": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "RDSSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "1433",
+        "ToPort": "1433",
+        "CidrIp": "66.162.93.230/32"
+      }
+    },
+    "ingress8": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "InternalELBSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress9": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "DefaultSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "SourceSecurityGroupId": {
+          "Ref": "DefaultSecurityGroup"
+        },
+        "SourceSecurityGroupOwnerId": "611364622323"
+      }
+    },
+    "ingress10": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "ExternalELBSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "443",
+        "ToPort": "443",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress11": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "ExternalELBSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress12": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "WebServerSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "SourceSecurityGroupId": {
+          "Ref": "InternalELBSecurityGroup"
+        },
+        "SourceSecurityGroupOwnerId": "611364622323"
+      }
+    },
+    "ingress13": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "WebServerSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "3389",
+        "ToPort": "3389",
+        "CidrIp": "66.162.93.230/32"
+      }
+    },
+    "ingress14": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "WebServerSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "443",
+        "ToPort": "443",
+        "SourceSecurityGroupId": {
+          "Ref": "InternalELBSecurityGroup"
+        },
+        "SourceSecurityGroupOwnerId": "611364622323"
+      }
+    },
+    "egress1": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NginxSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress2": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "NATSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress3": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "RDSSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress4": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "InternalELBSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress5": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "DefaultSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress6": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "ExternalELBSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress7": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "WebServerSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    }
+  },
+  "Description": "Project BootCamp",
+  "Outputs": {
+    "ExternalLoadBalancerToRevProxyServersName": {
+      "Value": {
+        "Ref": "ExternalLoadBalancerToRevProxyServers"
+      }
+    },
+    "ExternalLoadBalancerToRevProxyServersDNS": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ExternalLoadBalancerToRevProxyServers",
+          "DNSName"
+        ]
+      }
+    },
+    "RDSSQLServerName": {
+      "Value": {
+        "Ref": "RDSSQLServer"
+      }
+    },
+    "RDSSQLServerEndpoint": {
+      "Value": {
+        "Fn::GetAtt": [
+          "RDSSQLServer",
+          "Endpoint.Address"
+        ]
+      }
+    },
+    "RDSSQLServerPort": {
+      "Value": {
+        "Fn::GetAtt": [
+          "RDSSQLServer",
+          "Endpoint.Port"
+        ]
+      }
+    },
+    "RDSSQLServerConnect": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "jdbc:mysql://",
+            {
+              "Fn::GetAtt": [
+                "RDSSQLServer",
+                "Endpoint.Address"
+              ]
+            },
+            ":",
+            {
+              "Fn::GetAtt": [
+                "RDSSQLServer",
+                "Endpoint.Port"
+              ]
+            },
+            "/",
+            "MyDatabase"
+          ]
+        ]
+      }
+    },
+    "RDSSubnetGroupName": {
+      "Value": {
+        "Ref": "RDSSubnetGroup"
+      }
+    }
+  }
+}
