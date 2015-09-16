@@ -108,8 +108,12 @@
         "EnableDnsHostnames": "true",
         "Tags": [
           {
+            "Key": "Environment",
+            "Value": { "Ref" : "EnvironmentName" }
+          },
+          {
             "Key": "Name",
-            "Value": "BootCamp"
+            "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- VPC" ]] }
           }
         ]
       }
@@ -125,7 +129,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -145,7 +149,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -169,7 +173,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -189,7 +193,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -200,7 +204,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -219,7 +223,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ],
         "DomainName": "ec2.internal",
@@ -241,7 +245,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -255,7 +259,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -277,7 +281,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -291,7 +295,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -342,7 +346,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -394,31 +398,13 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
             "Value": { "Fn::Join" : ["", [{ "Ref" : "EnvironmentName" }, "- BootCamp Internal ELB" ]] }
           }
         ]
-      }
-    },
-    "NATAElasticIP": {
-      "Type": "AWS::EC2::EIP",
-      "DependsOn": [
-        "gw1"
-      ],
-      "Properties": {
-        "Domain": "vpc"
-      }
-    },
-    "NATBElasticIP": {
-      "Type": "AWS::EC2::EIP",
-      "DependsOn": [
-        "gw1"
-      ],
-      "Properties": {
-        "Domain": "vpc"
       }
     },
     "NginxAutoScalingGroup": {
@@ -453,7 +439,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev",
+            "Value": { "Ref" : "EnvironmentName" },
             "PropagateAtLaunch": true
           },
           {
@@ -499,7 +485,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev",
+            "Value": { "Ref" : "EnvironmentName" },
             "PropagateAtLaunch": true
           },
           {
@@ -628,7 +614,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ],
         "NetworkInterfaces": [
@@ -666,7 +652,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -764,7 +750,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -783,7 +769,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -806,7 +792,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -821,7 +807,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -844,7 +830,7 @@
           },
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           }
         ]
       }
@@ -859,7 +845,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -878,7 +864,7 @@
         "Tags": [
           {
             "Key": "Environment",
-            "Value": "BootCampDev"
+            "Value": { "Ref" : "EnvironmentName" }
           },
           {
             "Key": "Name",
@@ -1148,36 +1134,6 @@
         },
         "DhcpOptionsId": {
           "Ref": "VPCDHCPOptions"
-        }
-      }
-    },
-    "assoc1": {
-      "Type": "AWS::EC2::EIPAssociation",
-      "DependsOn" : "NATInstanceA",
-      "Properties": {
-        "AllocationId": {
-          "Fn::GetAtt": [
-            "NATAElasticIP",
-            "AllocationId"
-          ]
-        },
-        "InstanceId": {
-          "Ref": "NATInstanceA"
-        }
-      }
-    },
-    "assoc2": {
-      "Type": "AWS::EC2::EIPAssociation",
-      "DependsOn" : "NATInstanceB",
-      "Properties": {
-        "AllocationId": {
-          "Fn::GetAtt": [
-            "NATBElasticIP",
-            "AllocationId"
-          ]
-        },
-        "InstanceId": {
-          "Ref": "NATInstanceB"
         }
       }
     },
