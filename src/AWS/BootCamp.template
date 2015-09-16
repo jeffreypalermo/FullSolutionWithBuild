@@ -43,15 +43,15 @@
      "Type"        : "String"
    },
    "RDSStorageSize" : {
-     "Description" : "Size of RDS storage in GB.",
+     "Description" : "Size of RDS storage in GB (between 20 GB and 4096 GB).",
      "Type" : "String",
-     "Default" : "5"
+     "Default" : "20"
     },
     "RDSInstanceType" : {
      "Description" : "Type of RDS instance to launch.",
      "Type" : "String",
-     "Default" : "t2.small",
-     "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
+     "Default" : "db.t2.micro",
+     "AllowedValues" : [ "db.t2.micro", "db.t2.small", "db.t2.medium" ],
      "ConstraintDescription" : "must be a valid EC2 instance type."
    },
    "NginxServerInstanceType" : {
@@ -68,19 +68,7 @@
      "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
      "ConstraintDescription" : "must be a valid EC2 instance type."
    },
-   "ApiVersion" : {
-      "Description" : "The Initial version of software to load with each new instance of Api Server",
-      "Type" : "String"
-    },
-    "NSBVersion" : {
-      "Description" : "The Initial version of software to load with each new instance of NSB Server",
-      "Type" : "String"
-    },
-    "DatabaseVersion" : {
-      "Description" : "The Initial version of software to load with each new instance of NSB Server",
-      "Type" : "String"
-    },
-    "OctoServerApiKey" : {
+   "OctoServerApiKey" : {
       "Description" : "Your Octopus Server API Key",
       "Type" : "String"
     },
@@ -577,8 +565,6 @@
                 "$octoServerApiKey = $octoServerApiKey.Trim()",
                 "$octoServerThumbprint = \"",{ "Ref" : "OctoServerThumbprint" },"\"",
                 "$octoServerThumbprint = $octoServerThumbprint.Trim()",
-                "$apiVersion = \"",{ "Ref" : "ApiVersion" },"\"",
-                "$apiVersion = $apiVersion.Trim()",
                 "$newRelicLicenseKey = \"",{ "Ref" : "NewRelicLicenseKey" },"\"",
                 "$newRelicLicenseKey = $newRelicLicenseKey.Trim()",
                 "$logEntriesAPIKey = \"",{ "Ref" : "LogEntriesAPIKey" },"\"",
