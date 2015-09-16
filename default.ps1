@@ -41,7 +41,7 @@ properties {
 }
 
 task default -depends Init, Compile, RebuildDatabase, Test, LoadData
-task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package
+task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, Deploy
 
 task Init {
     delete_file $package_file
@@ -117,7 +117,13 @@ task Package {
 	
 	zip_directory $package_dir $package_file 
 }
- 
+
+ task Deploy {
+	exec {
+		& msbuild  $source_dir\UI\UI.csproj /t:Build /p:DeployOnBuild=true /p:RunOctoPack=true
+	}
+ }
+
 
 
 
