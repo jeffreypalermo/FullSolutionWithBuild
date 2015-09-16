@@ -120,7 +120,7 @@ task Package {
 
  task Deploy {
 	exec {
-		& msbuild  $source_dir\UI\UI.csproj /t:Build /p:DeployOnBuild=true /p:RunOctoPack=true
+		& msbuild  $source_dir\UI\UI.csproj /t:Build /p:OctoPackEnforceAddingFiles=true /p:RunOctoPack=true
 	}
  }
 
