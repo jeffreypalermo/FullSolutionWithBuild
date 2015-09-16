@@ -47,13 +47,17 @@
      "Type" : "String",
      "Default" : "20"
     },
-    "RDSInstanceType" : {
+   "RDSInstanceType" : {
      "Description" : "Type of RDS instance to launch.",
      "Type" : "String",
      "Default" : "db.t2.micro",
      "AllowedValues" : [ "db.t2.micro", "db.t2.small", "db.t2.medium" ],
      "ConstraintDescription" : "must be a valid EC2 instance type."
    },
+   "DatabaseVersion" : {
+      "Description" : "The Initial version of software to load with each new instance of NSB Server",
+      "Type" : "String"
+    },
    "NginxServerInstanceType" : {
      "Description" : "Type of EC2 instance to launch.",
      "Type" : "String",
@@ -68,6 +72,10 @@
      "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "c4.large", "c4.2xlarge"],
      "ConstraintDescription" : "must be a valid EC2 instance type."
    },
+   "WebVersion" : {
+      "Description" : "The Initial version of software to load with each new instance of Web Server",
+      "Type" : "String"
+    },
    "OctoServerApiKey" : {
       "Description" : "Your Octopus Server API Key",
       "Type" : "String"
