@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>web-server-config</id>
+    <version>1.0.0</version>
+    <authors>JamesAllen</authors>
+    <owners>JamesAllen</owners>
+    <description>Configures a API Server</description>
+    <tags>Boxstarter</tags>
+  </metadata>
+</package>

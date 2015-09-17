@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>log-entries-agent-config</id>
+    <version>2.5.0</version>
+    <authors>JamesAllen</authors>
+    <owners>JamesAllen</owners>
+    <description>Installs and configures LogEntries Agent</description>
+    <tags>Boxstarter</tags>
+  </metadata>
+</package>

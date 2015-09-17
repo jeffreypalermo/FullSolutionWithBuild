@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>octo-tentacle</id>
+    <version>1.0.0</version>
+    <authors>JamesAllen</authors>
+    <owners>JamesAllen</owners>
+    <description>Installs Octopus Tentacle</description>
+    <tags>Boxstarter</tags>
+  </metadata>
+</package>

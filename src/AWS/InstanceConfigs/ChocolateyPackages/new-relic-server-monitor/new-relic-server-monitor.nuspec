@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>new-relic-server-monitor</id>
+    <version>3.3.3</version>
+    <authors>JamesAllen</authors>
+    <owners>JamesAllen</owners>
+    <description>Installs the new relic server monitor</description>
+    <tags>Boxstarter</tags>
+  </metadata>
+</package>

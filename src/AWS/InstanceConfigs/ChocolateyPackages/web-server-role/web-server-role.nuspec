@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>web-server-role</id>
+    <version>1.0.0</version>
+    <authors>James Allen</authors>
+    <owners>James Allen</owners>
+    <description>Adds functionality for a API-Server role</description>
+    <tags>Boxstarter</tags>
+  </metadata>
+</package>
