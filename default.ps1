@@ -34,6 +34,8 @@ properties {
 
 	$databaseUsername = "bootcamp"
 	$databasePassword = "9Db12345678"
+	
+	$chocolatey_packages_dir = "$source_dir\AWS\InstanceConfigs\ChocolateyPackages"
     
     $connection_string = "server=$databaseserver;database=$databasename;$databaseUser;"
     $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
@@ -41,7 +43,7 @@ properties {
 }
 
 task default -depends Init, Compile, RebuildDatabase, Test, LoadData
-task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, Deploy
+task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, UploadChocolateyPackages, Deploy
 
 task Init {
     delete_file $package_file
@@ -116,6 +118,10 @@ task Package {
     copy_files "$databaseScripts" "$package_dir\database"
 	
 	zip_directory $package_dir $package_file 
+}
+
+task UploadChocolateyPackages {
+	aws s3 cp $chocolatey_packages_dir s3://cm-projectbootcamp/configs/ChocolateyPackages/ --recursive --exclude "*/*" --include ".nupkg"
 }
 
  task Deploy {
