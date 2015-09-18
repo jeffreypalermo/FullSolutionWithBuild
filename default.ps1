@@ -38,7 +38,8 @@ properties {
 	$chocolatey_packages_dir = "$source_dir\AWS\InstanceConfigs\ChocolateyPackages"
     
     $connection_string = "server=$databaseserver;database=$databasename;$databaseUser;"
-    $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
+    # $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
+	$roundhouse = "$source_dir\packages\roundhouse.0.8.6\bin\rh.exe"
     $webapp_dir = "$source_dir\UI"
 }
 
@@ -74,15 +75,30 @@ task Test {
 }
 
 task RebuildDatabase -depends ConnectionString {
-    exec {
-        & $AliaSql Rebuild $databaseServer $databaseName $databaseScripts
-    }
+	$arguments = @();
+	$arguments += "-d `"$databaseName`""
+	$arguments += "-f `"$databaseScripts`""
+	$arguments += "-s `"$databaseServer`""
+	$arguments += "-o `"$base_dir\ChuckNorris\RoundhousE`""
+	# $arguments += "-vf `"1`""
+	# $arguments += "-env `"$environment`"" # RH can be configured to run scripts based on environment.  This defaults to "LOCAL"
+	$arguments += "-simple"
+	$arguments += "--silent"
+
+	write-host "Exe : $roundhouse"
+	write-host "Arguments: $arguments"
+	
+	$process = (Start-Process $roundhouse -ArgumentList $arguments -NoNewWindow -Wait -Passthru)
+	write-host "Roundhouse process exited with code : " $process.ExitCode
+	if( $process.ExitCode -ne 0 ) {
+		throw "Error - something went wrong while running Roundhouse!"
+	}
 }
 
 task RebuildRemoteDatabase {
     write-host "Using database username: $databaseUsername"
     exec {
-        & $AliaSql Rebuild $databaseServer $databaseName $databaseScripts $databaseUsername $databasePassword
+        # & $AliaSql Rebuild $databaseServer $databaseName $databaseScripts $databaseUsername $databasePassword
     }
 }
 
@@ -129,30 +145,6 @@ task UploadChocolateyPackages {
 		& msbuild  $source_dir\UI\UI.csproj /t:Build /p:OctoPackEnforceAddingFiles=true /p:RunOctoPack=true
 	}
  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function global:zip_directory($directory,$file) {
     write-host "Zipping folder: " $test_assembly
