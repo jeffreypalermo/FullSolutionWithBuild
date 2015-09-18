@@ -1,5 +1,6 @@
 try {
 
+Update-SessionEnvironment
 $strSiteName = 'BootCamp'
 $strAppPath = 'D:\Sites\BootCamp'
 $toolsDirectory = 'C:\Tools'
@@ -13,13 +14,6 @@ if(Test-Path ENV:ENVIRONMENT_TYPE)
 	$newName = $environment + '-' + ([system.guid]::NewGuid().ToString()).Substring(30)
 	Rename-Computer -NewName $newName
 }
-
-# Commenting out the sections we know work, testing Import-Module WebAdministration
-# Basic setup
-Set-WindowsExplorerOptions -EnableshowHiddenFilesFoldersDrives -EnableshowProtectedOSFiles -EnableshowFileExtensions
-Disable-InternetExplorerESC
-Disable-UAC
-Enable-RemoteDesktop
 
 # To see the full list of Windows features type "clist -source windowsfeatures"
 Install-WindowsFeature Telnet-Client

@@ -1,3 +1,4 @@
+Update-SessionEnvironment
 $arguments = @{}
 
   # Let's assume that the input string is something like this, and we will use a Regular Expression to parse the values

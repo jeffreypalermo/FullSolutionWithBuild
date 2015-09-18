@@ -7,7 +7,7 @@ $arguments = @{}
 
   # Now we can use the $env:chocolateyPackageParameters inside the Chocolatey package
   $packageParameters = $env:chocolateyPackageParameters
-  $installPackagesPath = $env:"$env:SystemDrive\InstallPackages"
+  $installPackagesPath = "$env:SystemDrive\InstallPackages"
 
   # Default the values
   $adminPasword = ""
@@ -48,9 +48,12 @@ $arguments = @{}
       Write-Debug "No Package Parameters Passed in"
   }
 
+Update-SessionEnvironment
+
 Write-Output "Renaming Computer to match Environment Type"
 $environment = $env:ENVIRONMENT_TYPE
 $newName = $environment + '-' + ([system.guid]::NewGuid().ToString()).Substring(30)
+Write-Output "$env:COMPUTERNAME --> $newName"
 Rename-Computer -NewName $newName
 
 # change the default Password

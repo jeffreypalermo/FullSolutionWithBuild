@@ -1,7 +1,7 @@
 try {
 
 # example: cinst ls-octo-tentacle -y -packageParameters "/AdminPassword:Password" -source C:\InstallPackages
-
+Update-SessionEnvironment
 cinst octopustools
 
 $arguments = @{}
