@@ -76,24 +76,34 @@ task Test {
 }
 
 task RebuildDatabase -depends ConnectionString {
-	$arguments = @();
-	$arguments += "-d `"$databaseName`""
-	$arguments += "-f `"$databaseScripts`""
-	$arguments += "-s `"$databaseServer`""
-	$arguments += "-o `"$base_dir\ChuckNorris\RoundhousE`""
-	$arguments += "-vf `"$db_version_file`""
+	# $arguments = @();
+	# $arguments += "-d `"$databaseName`""
+	# $arguments += "-f `"$databaseScripts`""
+	# $arguments += "-s `"$databaseServer`""
+	# $arguments += "-o `"$base_dir\ChuckNorris\RoundhousE`""
+	# $arguments += "-vf `"$db_version_file`""
 	# $arguments += "-env `"$environment`"" # RH can be configured to run scripts based on environment.  This defaults to "LOCAL"
-	$arguments += "-simple"
-	$arguments += "--silent"
-
-	write-host "Exe : $roundhouse"
-	write-host "Arguments: $arguments"
+	# $arguments += "-simple"
+	# $arguments += "--silent"
+    # 
+	# write-host "Exe : $roundhouse"
+	# write-host "Arguments: $arguments"
+	# 
+	# $process = (Start-Process $roundhouse -ArgumentList $arguments -NoNewWindow -Wait -Passthru)
+	# write-host "Roundhouse process exited with code : " $process.ExitCode
+	# if( $process.ExitCode -ne 0 ) {
+	# 	throw "Error - something went wrong while running Roundhouse!"
+	# }
 	
-	$process = (Start-Process $roundhouse -ArgumentList $arguments -NoNewWindow -Wait -Passthru)
-	write-host "Roundhouse process exited with code : " $process.ExitCode
-	if( $process.ExitCode -ne 0 ) {
-		throw "Error - something went wrong while running Roundhouse!"
-	}
+	Write-Host "***************************"
+	Write-Host "Starting Database Migration"
+	Write-Host "***************************"
+	
+	exec {cmd.exe /c ".\round_house.bat $databaseName $databaseServer $databaseScripts"}
+	
+	Write-Host "***************************"
+	Write-Host "Finished Database Migration"
+	Write-Host "***************************"
 }
 
 task RebuildRemoteDatabase {
