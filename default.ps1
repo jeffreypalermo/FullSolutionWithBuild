@@ -40,6 +40,7 @@ properties {
     $connection_string = "server=$databaseserver;database=$databasename;$databaseUser;"
     # $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
 	$roundhouse = "$source_dir\packages\roundhouse.0.8.6\bin\rh.exe"
+	$db_version_file = "$base_dir\_BuildInfo.xml"
     $webapp_dir = "$source_dir\UI"
 }
 
@@ -80,7 +81,7 @@ task RebuildDatabase -depends ConnectionString {
 	$arguments += "-f `"$databaseScripts`""
 	$arguments += "-s `"$databaseServer`""
 	$arguments += "-o `"$base_dir\ChuckNorris\RoundhousE`""
-	# $arguments += "-vf `"1`""
+	$arguments += "-vf `"$db_version_file`""
 	# $arguments += "-env `"$environment`"" # RH can be configured to run scripts based on environment.  This defaults to "LOCAL"
 	$arguments += "-simple"
 	$arguments += "--silent"

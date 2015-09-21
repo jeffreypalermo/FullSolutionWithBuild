@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<buildInfo>
+  <projectName>Project Bootcamp</projectName>
+  <companyName>Clear-Measure</companyName>
+  <versionMajor>0</versionMajor>
+  <versionMinor>0</versionMinor>
+  <buildNumber>0</buildNumber>
+  <revision>25</revision>
+  <version>1</version>
+  <repositoryPath>https://github.com/ClearMeasureLabs/ClearMeasureBootcamp.git</repositoryPath>
+  <microsoftNetFramework>net-4.5</microsoftNetFramework>
+  <msbuildConfiguration>Release</msbuildConfiguration>
+  <msbuildPlatform>Any CPU</msbuildPlatform>
+  <!-- <builtWith>UppercuT v. 0.9.0.216</builtWith> -->
+</buildInfo>
