@@ -219,3 +219,4 @@ pip-log.txt
 .mr.developer.cfg
 
 **/src/.vs/
+/src/Database/migrations
