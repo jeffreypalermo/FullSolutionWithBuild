@@ -1,1 +1,0 @@
-rh -d %1 -s . -f %3 -simple -silent
