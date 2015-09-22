@@ -3,7 +3,7 @@
     <property name="connection.driver_class">
 			NHibernate.Driver.SqlClientDriver
 		</property>
-    <property name="connection.connection_string">server=localhost\SQLEXPRESS2014;database=;Integrated Security=true;</property>
+    <property name="connection.connection_string">data source=localhost\SQLEXPRESS2014;initial catalog=Bootcamp;Integrated Security=SSPI</property>
     <property name="show_sql">false</property>
     <property name="dialect">
 			NHibernate.Dialect.MsSql2005Dialect

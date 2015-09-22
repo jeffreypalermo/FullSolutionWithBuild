@@ -25,7 +25,7 @@ properties {
 	$package_dir = "$build_dir\package"	
 	$package_file = "$build_dir\latestVersion\" + $projectName +"_Package.zip"
 
-    # $databaseName = $projectName --RoundhousE will not allow this to be parameterized  
+    $databaseName = "ClearMeasureBootcamp" # --RoundhousE will not allow this to be parameterized  
     $databaseServer = if([Environment]::GetEnvironmentVariable("dbServer","User") -eq $null) { "localhost\SQLEXPRESS2014" } else { [Environment]::GetEnvironmentVariable("dbServer","User")}
     $databaseScripts = "$source_dir\Database\scripts"
     $hibernateConfig = "$source_dir\hibernate.cfg.xml"
@@ -38,13 +38,12 @@ properties {
 	$chocolatey_packages_dir = "$source_dir\AWS\InstanceConfigs\ChocolateyPackages"
     
     $connection_string = "server=$databaseserver;database=$databasename;$databaseUser;"
-    # $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
-	$roundhouse = "$source_dir\packages\roundhouse.0.8.6\bin\rh.exe"
+	$roundhouse = "$source_dir\Database\scripts\rh.exe"
 	$db_version_file = "$base_dir\_BuildInfo.xml"
     $webapp_dir = "$source_dir\UI"
 }
 
-task default -depends Init, Compile, RebuildDatabase, Test, LoadData
+task default -depends Init, ConnectionString, Compile, RebuildDatabase, Test, LoadData
 task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, UploadChocolateyPackages, Deploy
 
 task Init {
@@ -55,14 +54,14 @@ task Init {
 }
 
 task ConnectionString {
-    $connection_string = "server=$databaseserver;database=$databasename;$integratedSecurity;"
+    $connection_string = "data source=localhost\SQLEXPRESS2014;initial catalog=Bootcamp;Integrated Security=SSPI"
     write-host "Using connection string: $connection_string"
     if ( Test-Path "$hibernateConfig" ) {
         poke-xml $hibernateConfig "//e:property[@name = 'connection.connection_string']" $connection_string @{"e" = "urn:nhibernate-configuration-2.2"}
     }
 }
 
-task Compile -depends Init {
+task Compile {
     exec {
         & msbuild /t:Clean`;Rebuild /v:q /nologo /p:Configuration=$projectConfig $source_dir\$projectName.sln
     }
@@ -75,25 +74,33 @@ task Test {
     }
 }
 
-task RebuildDatabase -depends ConnectionString {
-	 $arguments = @();
-	 $arguments += "-d `"ClearMeasure.Bootcamp`""
-	 $arguments += "-f `"$databaseScripts`""
-	 $arguments += "-s `"$databaseServer`""
-	 $arguments += "-o `"$source_dir\Database`""
-	 $arguments += "-vf `"$db_version_file`""
+task RebuildDatabase {
+	$conn_string = "data source=localhost\SQLEXPRESS2014;initial catalog=Bootcamp;Integrated Security=SSPI"
+
+	$arguments = @();
+	$arguments += "-d `"Bootcamp`""
+	$arguments += "-f `"$databaseScripts`""
+	$arguments += "-s `"$databaseServer`""
+	$arguments += "-cs `"$conn_string`""
+	# $arguments += "-o `"$source_dir\Database`""
+	# $arguments += "-vf `"$db_version_file`""
 	# $arguments += "-env `"$environment`"" # RH can be configured to run scripts based on environment.  This defaults to "LOCAL"
-	 $arguments += "-simple"
-	 $arguments += "-silent"
-     
-	 write-host "Exe : $roundhouse"
-	 write-host "Arguments: $arguments"
-	 
-	 $process = (Start-Process $roundhouse -ArgumentList $arguments -NoNewWindow -Wait -Passthru)
-	 write-host "Roundhouse process exited with code : " $process.ExitCode
-	 if( $process.ExitCode -ne 0 ) {
-	 	throw "Error - something went wrong while running Roundhouse!"
-	 }
+	$arguments += "--simple"
+	$arguments += "--silent"
+	$arguments += "--debug"
+    
+	write-host "Exe : $roundhouse"
+	write-host "Arguments: $arguments"
+	
+	$process = (Start-Process $roundhouse -ArgumentList $arguments -NoNewWindow -Wait -Passthru)
+	write-host "Roundhouse process exited with code : " $process.ExitCode
+	if( $process.ExitCode -ne 0 ) {
+		throw "Error - something went wrong while running Roundhouse!"
+	}
+	
+	# pushd $databaseScripts
+	# exec { .\rh.exe -d "Bootcamp" -cs "$conn_string" -f "$databaseScripts" -s "$databaseServer" --simple --silent --debug }
+	# exec {cmd.exe /c C:\Projects\ClearMeasureBootcamp\src\Database\scripts\round_house.bat}
 }
 
 task RebuildRemoteDatabase {
@@ -103,7 +110,7 @@ task RebuildRemoteDatabase {
     }
 }
 
-task LoadData -depends ConnectionString, Compile, RebuildDatabase {
+task LoadData {
     exec { 
 		& $nunitPath\nunit-console.exe $test_dir\$integrationTestAssembly /include=DataLoader /nologo /nodots /xml=$build_dir\DataLoadResult.xml
     } "Build failed - data load failure"  

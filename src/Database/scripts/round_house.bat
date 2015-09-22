@@ -1,0 +1,1 @@
+C:\Projects\ClearMeasureBootcamp\src\Database\scripts\rh -d ClearMeasureBootcamp -s localhost\SQLEXPRESS2014 -f C:\Projects\ClearMeasureBootcamp\src\Database\scripts --simple --debug --silent
