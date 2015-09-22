@@ -12,6 +12,7 @@ namespace ClearMeasure.Bootcamp.IntegrationTests
         private readonly ISessionFactory _factory;
         private static readonly string[] _ignoredTables = new[] { "[dbo].[sysdiagrams]" };
         private static string _deleteSql;
+        private static readonly string _roundhouse = "RoundhousE";
 
         public DatabaseEmptier(ISessionFactory factory)
         {
@@ -56,6 +57,7 @@ namespace ClearMeasure.Bootcamp.IntegrationTests
             string completeQuery = "";
             foreach (string tableName in tablesToDelete)
             {
+                if (tableName.Contains(_roundhouse)) { continue; }
                 completeQuery += String.Format("delete from {0};", tableName);
             }
             return completeQuery;
