@@ -25,7 +25,7 @@ properties {
 	$package_dir = "$build_dir\package"	
 	$package_file = "$build_dir\latestVersion\" + $projectName +"_Package.zip"
 
-    $databaseName = "ClearMeasureBootcamp" # --RoundhousE will not allow this to be parameterized  
+    $databaseName = "ClearMeasureBootcamp"
     $databaseServer = if([Environment]::GetEnvironmentVariable("dbServer","User") -eq $null) { "localhost\SQLEXPRESS2014" } else { [Environment]::GetEnvironmentVariable("dbServer","User")}
     $databaseScripts = "$source_dir\Database\scripts"
     $hibernateConfig = "$source_dir\hibernate.cfg.xml"
@@ -54,7 +54,7 @@ task Init {
 }
 
 task ConnectionString {
-    $connection_string = "data source=localhost\SQLEXPRESS2014;initial catalog=Bootcamp;Integrated Security=SSPI"
+    $connection_string = "data source=localhost\SQLEXPRESS2014;initial catalog=ClearMeasureBootcamp;Integrated Security=SSPI"
     write-host "Using connection string: $connection_string"
     if ( Test-Path "$hibernateConfig" ) {
         poke-xml $hibernateConfig "//e:property[@name = 'connection.connection_string']" $connection_string @{"e" = "urn:nhibernate-configuration-2.2"}
@@ -75,19 +75,19 @@ task Test {
 }
 
 task RebuildDatabase {
-	$conn_string = "data source=localhost\SQLEXPRESS2014;initial catalog=Bootcamp;Integrated Security=SSPI"
+	$conn_string = "data source=localhost\SQLEXPRESS2014;initial catalog=ClearMeasureBootcamp;Integrated Security=SSPI"
 
 	$arguments = @();
-	$arguments += "-d `"Bootcamp`""
+	$arguments += "-d `"$databaseName`""
 	$arguments += "-f `"$databaseScripts`""
 	$arguments += "-s `"$databaseServer`""
 	$arguments += "-cs `"$conn_string`""
-	# $arguments += "-o `"$source_dir\Database`""
+	$arguments += "-o `"$source_dir\Database`""
 	# $arguments += "-vf `"$db_version_file`""
 	# $arguments += "-env `"$environment`"" # RH can be configured to run scripts based on environment.  This defaults to "LOCAL"
 	$arguments += "--simple"
 	$arguments += "--silent"
-	$arguments += "--debug"
+	# $arguments += "--debug"
     
 	write-host "Exe : $roundhouse"
 	write-host "Arguments: $arguments"
@@ -97,10 +97,6 @@ task RebuildDatabase {
 	if( $process.ExitCode -ne 0 ) {
 		throw "Error - something went wrong while running Roundhouse!"
 	}
-	
-	# pushd $databaseScripts
-	# exec { .\rh.exe -d "Bootcamp" -cs "$conn_string" -f "$databaseScripts" -s "$databaseServer" --simple --silent --debug }
-	# exec {cmd.exe /c C:\Projects\ClearMeasureBootcamp\src\Database\scripts\round_house.bat}
 }
 
 task RebuildRemoteDatabase {
