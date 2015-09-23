@@ -1,4 +1,5 @@
 # Generate build label
+# Generate build label
 if($env:BUILD_NUMBER -ne $null) {
     $env:buildlabel = "$env:TEAMCITY_PROJECT_NAME $env:TEAMCITY_BUILDCONF_NAME $env:BUILD_NUMBER on $(Get-Date -Format g)"
     $env:buildconfig = "Release"
@@ -44,7 +45,7 @@ properties {
 }
 
 task default -depends Init, ConnectionString, Compile, RebuildDatabase, Test, LoadData
-task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, UploadChocolateyPackages, Deploy
+task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test, Package, UploadChocolateyPackages
 
 task Init {
     delete_file $package_file
@@ -63,7 +64,7 @@ task ConnectionString {
 
 task Compile {
     exec {
-        & msbuild /t:Clean`;Rebuild /v:q /nologo /p:Configuration=$projectConfig $source_dir\$projectName.sln
+        & msbuild /t:Clean`;Rebuild /v:q /nologo /p:Configuration=$projectConfig $source_dir\$projectName.sln /p:RunOctoPack=true /p:OctoPackEnforceAddingFiles=true
     }
 }
 
@@ -143,12 +144,6 @@ task Package {
 task UploadChocolateyPackages {
 	aws s3 cp $chocolatey_packages_dir s3://cm-projectbootcamp/configs/ChocolateyPackages/ --recursive --exclude "*/*" --include ".nupkg"
 }
-
- task Deploy {
-	exec {
-		& msbuild  $source_dir\UI\UI.csproj /t:Build /p:OctoPackEnforceAddingFiles=true /p:RunOctoPack=true
-	}
- }
 
 function global:zip_directory($directory,$file) {
     write-host "Zipping folder: " $test_assembly
