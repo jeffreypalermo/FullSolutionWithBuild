@@ -1,0 +1,90 @@
+[
+  {
+    "ParameterKey": "AdminPassword",
+    "ParameterValue": "password123"
+  }, 
+  {
+    "ParameterKey": "AdminUser",
+    "ParameterValue": "cm_admin"
+  },
+  {
+    "ParameterKey": "AvailabilityZoneA",
+    "ParameterValue": "us-east-1a"
+  }, 
+  {
+    "ParameterKey": "AvailabilityZoneB",
+    "ParameterValue": "us-east-1b"
+  },
+  {
+    "ParameterKey": "DatabaseVersion",
+    "ParameterValue": "1"
+  }, 
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "DEV"
+  },
+  {
+    "ParameterKey": "EnvironmentType",
+    "ParameterValue": "DEV"
+  }, 
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "CM-DevOps"
+  },
+  {
+    "ParameterKey": "LogEntriesAPIKey",
+    "ParameterValue": "1"
+  }, 
+  {
+    "ParameterKey": "LogEntriesGroupName",
+    "ParameterValue": "ClearMeasure"
+  },
+  {
+    "ParameterKey": "NewRelicLicenseKey",
+    "ParameterValue": "1"
+  }, 
+  {
+    "ParameterKey": "NginxServerInstanceType",
+    "ParameterValue": "t2.small"
+  },
+  {
+    "ParameterKey": "OctoServerApiKey",
+    "ParameterValue": "API-M7LIFNIUERHO7YADDEJ6KN321QO"
+  }, 
+  {
+    "ParameterKey": "OctoServerEnvironmentName",
+    "ParameterValue": "CM-Bootcamp"
+  },
+  {
+    "ParameterKey": "OctoServerThumbprint",
+    "ParameterValue": "CB2C114A8717199A4747CB387D8589EAEDDF39DB"
+  }, 
+  {
+    "ParameterKey": "OctoServerURL",
+    "ParameterValue": "http://build.clear-measure.com:7070/"
+  },
+  {
+    "ParameterKey": "RDSInstanceType",
+    "ParameterValue": "db.t2.micro"
+  }, 
+  {
+    "ParameterKey": "RDSStorageSize",
+    "ParameterValue": "20"
+  },
+  {
+    "ParameterKey": "SQLAdminPassword",
+    "ParameterValue": "password123"
+  }, 
+  {
+    "ParameterKey": "SQLAdminUser",
+    "ParameterValue": "cm_admin"
+  },
+  {
+    "ParameterKey": "WebServerInstanceType",
+    "ParameterValue": "t2.small"
+  }, 
+  {
+    "ParameterKey": "WebVersion",
+    "ParameterValue": "1"
+  }
+]
