@@ -20,11 +20,11 @@ $env:path += ";C:\Program Files\Amazon\AWSCLI\"
 #   Write-Host "Still creating stack"
 # }
 
-$initial_state = aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE
+$initial_state = & aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE 
 aws cloudformation create-stack --stackname ClearMeasureBootcamp --template-body file:///src/AWS/BootCamp.template --parameters file:///src/AWS/cf_parameters.json
 
 do {
-  $stack = aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE
-  Start-Sleep -s 60
-  Write-Host "Still creating stack"
+ $stack = & aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE
+ Start-Sleep -s 60
+ Write-Host "Still creating stack"
 } while ($stack -eq $initial_state)
