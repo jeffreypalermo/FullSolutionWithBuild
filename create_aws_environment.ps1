@@ -4,8 +4,8 @@ $creation_complete = "CREATE_COMPLETE"
 $rollback_complete = "ROLLBACK_COMPLETE"
 $creation_in_progress = "CREATE_IN_PROGRESS"
 $aws_region = "us-east-1"
-$template_body_url = https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/BootCamp.template
-$parameters_url = https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/cf_parameters.json
+$template_body_url = 'https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/BootCamp.template'
+$parameters_url = 'https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/cf_parameters.json'
 
 function CreateStack {
   aws cloudformation create-stack --region $aws_region --stack-name $stack_name --template-body $template_body_url --parameters $parameters_url
