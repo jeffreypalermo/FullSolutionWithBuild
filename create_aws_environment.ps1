@@ -20,7 +20,7 @@ CreateStack
  do {
   $all_stacks = aws cloudformation list-stacks | ConvertFrom-JSON
   
-  $bootcamp_stack = $all_stacks.StackSummaries | ? { $_.StackName -eq $stack-name } Select -First 1
+  $bootcamp_stack = $all_stacks.StackSummaries | ? { $_.StackName -eq $stack_name } Select -First 1
     
   $current_status = $bootcamp_stack.StackStatus
   Write-Host $current_status
