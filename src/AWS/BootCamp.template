@@ -632,8 +632,8 @@
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_THUMBPRINT\", $octoServerThumbprint , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"WEB_VERSION\", $webVersion , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"DATABASE_VERSION\", $dbVersion , \"Machine\")",
-                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_PROJECT\", \"LightSail Api\" , \"Machine\")",
-                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_ROLE\", \"API-Server\" , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_PROJECT\", \"CM-Bootcamp\" , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_ROLE\", \"web-server\" , \"Machine\")",
                 "aws s3 cp s3://cm-projectbootcamp/configs/ChocolateyPackages/ 'C:\\InstallPackages' --recursive",
                 "cinst web-server-role -packageParameters \"/AdminUser:$adminUser /AdminPassword:$adminPassword\" -y -source 'C:\\InstallPackages'" ,
                 "</powershell>","\n"

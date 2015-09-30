@@ -5,7 +5,7 @@ $creation_failed = "CREATE_FAILED"
 $rollback_complete = "ROLLBACK_COMPLETE"
 $rollback_in_progress = "ROLLBACK_IN_PROGRESS"
 $creation_in_progress = "CREATE_IN_PROGRESS"
-$delete_in_progress = "DELETE_IN_PROGRESS"
+$delete_complete = "DELETE_COMPLETE"
 $aws_region = "us-east-1"
 $template_body_url = 'https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/BootCamp.template'
 $parameters_url = 'https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/cf_parameters.json'
@@ -32,11 +32,11 @@ CreateStack
   If ($current_status -eq $rollback_complete) {  
     DeleteStack
 	do {
-	  $failed_stack = aws cloudformation list-stacks --stack-status-filter "ROLLBACK_COMPLETE" | Select -First 1
+	  $failed_stack = aws cloudformation describe-stacks --stack-name ClearMeasureBootcamp
 	  $failed_stack_status = $failed_stack.StackStatus
 	  Start-Sleep -s 15
 	  Write-Host "Deleting failed stack"
-	} while ( $failed_stack_status -ne $rollback_complete )
+	} while ( $failed_stack_status -ne $delete_complete )
 	
 	CreateStack
   }
