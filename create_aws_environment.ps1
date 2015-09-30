@@ -2,7 +2,7 @@ $env:path += ";C:\Program Files\Amazon\AWSCLI\"
 $stack_name = "ClearMeasureBootcamp"
 $creation_complete = "CREATE_COMPLETE"
 $rollback_complete = "ROLLBACK_COMPLETE"
-$creation_in_progress "CREATE_IN_PROGRESS"
+$creation_in_progress = "CREATE_IN_PROGRESS"
 $aws_region = "us-east-1"
 $template_body_url = https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/BootCamp.template
 $parameters_url = https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/cf_parameters.json
@@ -23,6 +23,7 @@ CreateStack
   $bootcamp_stack = $all_stacks.StackSummaries | ? { $_.StackName -eq $stack-name } Select -First 1
     
   $current_status = $bootcamp_stack.StackStatus
+  Write-Host $current_status
   
   If ($current_status -eq $creation_complete) { break }
   
