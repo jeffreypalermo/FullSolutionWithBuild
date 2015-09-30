@@ -32,7 +32,7 @@ CreateStack
   If ($current_status -eq $rollback_complete) {  
     DeleteStack
 	do {
-	  $failed_stack = aws cloudformation describe-stacks --stack-name $stack_name
+	  $failed_stack = aws cloudformation list-stacks --stack-status-filter "ROLLBACK_COMPLETE" | Select -First 1
 	  $failed_stack_status = $failed_stack.StackStatus
 	  Start-Sleep -s 15
 	  Write-Host "Deleting failed stack"
@@ -42,6 +42,6 @@ CreateStack
   }
   Else {
 	Start-Sleep -s 15
-    Write-Host "Still creating stack.  Current status: " + $current_status
+    Write-Host "Still creating stack.  Current status: " $current_status
   }
 } while ( $current_status -eq $creation_in_progress -Or $current_status -eq $creation_failed -Or $current_status -eq $rollback_in_progress )
