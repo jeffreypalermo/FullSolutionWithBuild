@@ -1,7 +1,9 @@
 $env:path += ";C:\Program Files\Amazon\AWSCLI\"
 $stack_name = "ClearMeasureBootcamp"
 $creation_complete = "CREATE_COMPLETE"
+$creation_failed = "CREATE_FAILED"
 $rollback_complete = "ROLLBACK_COMPLETE"
+$rollback_in_progress = "ROLLBACK_IN_PROGRESS"
 $creation_in_progress = "CREATE_IN_PROGRESS"
 $aws_region = "us-east-1"
 $template_body_url = 'https://s3.amazonaws.com/cm-projectbootcamp/cloud_formation/BootCamp.template'
@@ -35,4 +37,4 @@ CreateStack
 	Start-Sleep -s 60
     Write-Host "Still creating stack"
   }
-} while ($current_status -eq $creation_in_progress)
+} while ( $current_status -eq $creation_in_progress -Or $current_status -eq $creation_failed -Or $current_status -eq $rollback_in_progress )
