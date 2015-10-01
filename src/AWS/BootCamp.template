@@ -582,7 +582,7 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "AssociatePublicIpAddress": true,
-        "ImageId": "ami-cd9339a6",
+        "ImageId": "ami-c9cea0ac",
         "InstanceType": { "Ref": "WebServerInstanceType" },
         "KeyName": { "Ref": "KeyName" },
         "UserData": {
