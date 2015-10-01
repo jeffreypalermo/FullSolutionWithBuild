@@ -228,7 +228,7 @@ function Register-Tentacle
     Write-Host "Tentacle Registration complete"
 
     `$nameChanged = (Get-WmiObject -query "SELECT * FROM Win32_NTLogEvent WHERE (logfile='System') AND (eventcode='6011')" | `
-      where {`$_.TimeGenerated -gt (`$_.ConvertFromDateTime((Get-Date).AddMinutes(-15)))} | `
+      where {`$_.TimeGenerated -gt (`$_.ConvertFromDateTime((Get-Date).AddMinutes(-30)))} | `
       Select-Object -First 1) -ne `$null
 
       if (`$nameChanged)
