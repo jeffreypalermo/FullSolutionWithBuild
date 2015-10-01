@@ -630,7 +630,7 @@
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_URL\", $octoServerUrl , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_APIKEY\", $octoServerApiKey , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_THUMBPRINT\", $octoServerThumbprint , \"Machine\")",
-                "[Environment]::SetEnvironmentVariable(\"WEB_VERSION\", $webVersion , \"Machine\")",
+                "[Environment]::SetEnvironmentVariable(\"PACKAGE_VERSION\", $webVersion , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"DATABASE_VERSION\", $dbVersion , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_PROJECT\", \"CM-Bootcamp\" , \"Machine\")",
                 "[Environment]::SetEnvironmentVariable(\"OCTOSERVER_ROLE\", \"web-server\" , \"Machine\")",
