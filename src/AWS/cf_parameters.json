@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "AdminPassword",
-    "ParameterValue": "password123"
+    "ParameterValue": "Password123"
   }, 
   {
     "ParameterKey": "AdminUser",
@@ -73,7 +73,7 @@
   },
   {
     "ParameterKey": "SQLAdminPassword",
-    "ParameterValue": "password123"
+    "ParameterValue": "Password123"
   }, 
   {
     "ParameterKey": "SQLAdminUser",
