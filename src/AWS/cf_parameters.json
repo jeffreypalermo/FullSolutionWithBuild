@@ -5,7 +5,7 @@
   }, 
   {
     "ParameterKey": "AdminUser",
-    "ParameterValue": "cm_admin"
+    "ParameterValue": "cmadmin"
   },
   {
     "ParameterKey": "AvailabilityZoneA",
@@ -77,7 +77,7 @@
   }, 
   {
     "ParameterKey": "SQLAdminUser",
-    "ParameterValue": "cm_admin"
+    "ParameterValue": "cmadmin"
   },
   {
     "ParameterKey": "WebServerInstanceType",
