@@ -7,9 +7,9 @@ Param(
     [Parameter(Mandatory=$False)][string]$adminUser = "administrator",
     [Parameter(Mandatory=$False)][string]$adminPass = "Password@!",
     [Parameter(Mandatory=$False)][string]$serverUrl = "http://localhost:80/",
-    [Parameter(Mandatory=$False)][string]$License = "PExpY2Vuc2UgU2lnbmF0dXJlPSJnK2NqWk5NRWUrejVnWG9DVTdXT0Ezb3diZVMxamNPVGpudGhyN0RmOXJKSnArbkdxc1ZVQXRvd29nYVdDMzhHbDluQUJZd3V5VEt3MVh2YWNGRUc0dz09Ij4NCiAgPExpY2Vuc2VkVG8+Q2xlYXIgTWVhc3VyZTwvTGljZW5zZWRUbz4NCiAgPExpY2Vuc2VLZXk+MjU0MjEtMTk1MjMtNDM0MjAtNjE3NzQ8L0xpY2Vuc2VLZXk+DQogIDxWZXJzaW9uPjIuMDwvVmVyc2lvbj4NCiAgPFZhbGlkRnJvbT4yMDE2LTAxLTA2PC9WYWxpZEZyb20+DQogIDxWYWxpZFRvPjIwMTYtMDItMjA8L1ZhbGlkVG8+DQogIDxQcm9qZWN0TGltaXQ+VW5saW1pdGVkPC9Qcm9qZWN0TGltaXQ+DQogIDxNYWNoaW5lTGltaXQ+VW5saW1pdGVkPC9NYWNoaW5lTGltaXQ+DQogIDxVc2VyTGltaXQ+VW5saW1pdGVkPC9Vc2VyTGltaXQ+DQo8L0xpY2Vuc2U+",
     [Parameter(Mandatory=$False)][string]$TentacleInstallPath = "C:\OctopusDeploy\Tentacle",
-    [Parameter(Mandatory=$False)][string]$TentacleHomeDirectory = "C:\OctopusDeploy\Home\Tentacle"
+    [Parameter(Mandatory=$False)][string]$TentacleHomeDirectory = "C:\OctopusDeploy\Home\Tentacle",
+    [Parameter(Mandatory=$False)][string]$LicenseFile = "od-license.xml"
 )
 
 function Test-IsLocalAdministrator {
@@ -31,10 +31,10 @@ $Octo = "$toolsPath\octo\Octo.exe";
 Function DownloadTools{
     
     $webclient = New-Object System.Net.WebClient;
-    $urls = @{  "octopus-tentacle.msi" = "http://octopus.com/downloads/latest/OctopusTentacle64"
-               ;"octopus-server.msi"   = "http://octopus.com/downloads/latest/OctopusServer64"
-               ;"octo.zip"             = "http://octopusdeploy.com/downloads/latest/CommandLineTools"
-               ;"Octopus.TeamCity.zip" = "http://octopusdeploy.com/downloads/latest/TeamCityPlugin"
+    $urls = @{  "octopus-tentacle.msi" = "https://octopus.com/downloads/latest/OctopusTentacle64"
+               ;"octopus-server.msi"   = "https://octopus.com/downloads/latest/OctopusServer64"
+               ;"octo.zip"             = "https://octopusdeploy.com/downloads/latest/CommandLineTools"
+               ;"Octopus.TeamCity.zip" = "https://octopusdeploy.com/downloads/latest/TeamCityPlugin"
              };
          
     # check the endpoints for a redirect and location header
@@ -80,13 +80,17 @@ Function ConfigureServer{
     
     Write-Host "Configuring Octopus Deploy server" -ForegroundColor Green
 
+    $licenseFile = Get-Content $LicenseFile;
+    $licenseFileBytes = [System.Text.Encoding]::UTF8.GetBytes($licenseFile);
+    $licenseBase64 = [System.Convert]::ToBase64String($licenseFileBytes);
+    
     $commands = @(
      "create-instance --instance `"OctopusServer`" --config `"$ServerHomeDirectory`\OctopusServer.config`""
     ,"configure --instance `"OctopusServer`" --home `"$ServerHomeDirectory`" --storageConnectionString `"$storageConnectionString`" --upgradeCheck `"True`"   --upgradeCheckWithStatistics `"True`" --webAuthenticationMode `"UsernamePassword`" --webForceSSL `"False`" --webListenPrefixes `"$serverUrl`"     --commsListenPort `"10943`" --serverNodeName `"$serverNodeName`""
     ,"database --instance `"OctopusServer`" --create --grant `"NT AUTHORITY\SYSTEM`""
     ,"service --instance `"OctopusServer`" --stop"
     ,"admin --instance `"OctopusServer`" --username `"$adminUser`" --password `"$adminPass`""
-    ,"license --instance `"OctopusServer`" --licenseBase64 `"$License`""
+    ,"license --instance `"OctopusServer`" --licenseBase64 `"$licenseBase64`""
     ,"service --instance `"OctopusServer`" --install --reconfigure --start"
     );
     
@@ -180,12 +184,12 @@ if(Test-IsLocalAdministrator){
     exit;
 }
 
-DownloadTools;
-InstallServer;
+#DownloadTools;
+#InstallServer;
 ConfigureServer;
-$thumbprint = GetSeverThumbprint;
-InstallTentacle;
-ConfigureTentacle($thumbprint);
-$apiKey = CreateApiKey;
-Write-Host "Created API Key: $apiKey";
-CreateOctopusEnvironments($apiKey);
+#$thumbprint = GetSeverThumbprint;
+#InstallTentacle;
+#ConfigureTentacle($thumbprint);
+#$apiKey = CreateApiKey;
+#Write-Host "Created API Key: $apiKey";
+#CreateOctopusEnvironments($apiKey);
