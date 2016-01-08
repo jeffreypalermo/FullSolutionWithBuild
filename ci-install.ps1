@@ -26,13 +26,15 @@ $Server = $ServerInstallPath + "\Octopus.Server.exe"
 $OctopusTentacleServerMsi = "$toolsPath\octopus-tentacle.msi"
 $Tentacle = $TentacleInstallPath + "\Tentacle.exe"
 
+$Octo = "$toolsPath\octo\Octo.exe";
+
 Function DownloadTools{
     
     $webclient = New-Object System.Net.WebClient;
-    $urls = @{  "octopus-tentacle.msi" = "https://octopus.com/downloads/latest/OctopusTentacle64"
-               ;"octopus-server.msi"   = "https://octopus.com/downloads/latest/OctopusServer64"
-               ;"octo.zip"             = "https://octopusdeploy.com/downloads/latest/CommandLineTools"
-               ;"Octopus.TeamCity.zip" = "https://octopusdeploy.com/downloads/latest/TeamCityPlugin"
+    $urls = @{  "octopus-tentacle.msi" = "http://octopus.com/downloads/latest/OctopusTentacle64"
+               ;"octopus-server.msi"   = "http://octopus.com/downloads/latest/OctopusServer64"
+               ;"octo.zip"             = "http://octopusdeploy.com/downloads/latest/CommandLineTools"
+               ;"Octopus.TeamCity.zip" = "http://octopusdeploy.com/downloads/latest/TeamCityPlugin"
              };
          
     # check the endpoints for a redirect and location header
@@ -159,6 +161,15 @@ Function CreateApiKey{
     return $ApiObj.ApiKey    
 }
 
+Function CreateOctopusEnvironments($apiKey){
+    $environments = @("Dev", "QA", "Staging", "Production")
+    
+    foreach($environment in $environments){
+        $command = "create-environment --server=$serverUrl --apiKey=$apiKey --name=`"$environment`""
+        Start-Process -NoNewWindow -Wait -FilePath $Octo -ArgumentList $command
+    }
+}
+
 # ** ** ** ** ** ** ** ** ** 
 #  Procedural Execution
 # ** ** ** ** ** ** ** ** ** 
@@ -176,4 +187,5 @@ $thumbprint = GetSeverThumbprint;
 InstallTentacle;
 ConfigureTentacle($thumbprint);
 $apiKey = CreateApiKey;
-Write-Host "Created API Key: $apiKey"
+Write-Host "Created API Key: $apiKey";
+CreateOctopusEnvironments($apiKey);
