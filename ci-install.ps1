@@ -12,6 +12,12 @@ Param(
     [Parameter(Mandatory=$False)][string]$TentacleHomeDirectory = "C:\OctopusDeploy\Home\Tentacle"
 )
 
+function Test-IsLocalAdministrator {
+    $identity  = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object System.Security.Principal.WindowsPrincipal( $identity )
+    return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+
 $toolsPath = "$PSScriptRoot\tools\octopus"
 
 $OctopusServerMsi = "$toolsPath\octopus-server.msi"
@@ -156,6 +162,13 @@ Function CreateApiKey{
 # ** ** ** ** ** ** ** ** ** 
 #  Procedural Execution
 # ** ** ** ** ** ** ** ** ** 
+if(Test-IsLocalAdministrator){
+    Write-Host "Running Installer as Administrator" -ForegroundColor Green
+}else{
+    Write-Host "Not Local Admin: Please run Powershell as Administrator" -ForegroundColor Red
+    exit;
+}
+
 DownloadTools;
 InstallServer;
 ConfigureServer;
