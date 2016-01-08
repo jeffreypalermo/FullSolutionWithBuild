@@ -111,6 +111,8 @@ _TeamCity*
 *.ncrunch*
 .*crunch*.local.xml
 
+tools/octopus/*
+
 # Installshield output folder
 [Ee]xpress/
 
