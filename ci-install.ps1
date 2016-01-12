@@ -18,6 +18,9 @@ function Test-IsLocalAdministrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
+$environments = @("Dev", "QA", "Staging", "Production")
+$roles = @("Web", "Service")
+    
 $toolsPath = "$PSScriptRoot\tools\octopus"
 
 $OctopusServerMsi = "$toolsPath\octopus-server.msi"
@@ -29,10 +32,15 @@ $Tentacle = $TentacleInstallPath + "\Tentacle.exe"
 $Octo = "$toolsPath\octo\Octo.exe";
 
 Function DownloadTools{
+    $starttime = Get-Date   
+    Write-Banner "Downloading Octopus Deploy Tools" $True
+    
+    #Create the tools directory
+    New-Item $toolsPath -type directory -force | Out-Null
     
     $webclient = New-Object System.Net.WebClient;
-    $urls = @{  "octopus-tentacle.msi" = "https://octopus.com/downloads/latest/OctopusTentacle64"
-               ;"octopus-server.msi"   = "https://octopus.com/downloads/latest/OctopusServer64"
+    $urls = @{  "octopus-tentacle.msi" = "https://octopusdeploy.com/downloads/latest/OctopusTentacle64"
+               ;"octopus-server.msi"   = "https://octopusdeploy.com/downloads/latest/OctopusServer64"
                ;"octo.zip"             = "https://octopusdeploy.com/downloads/latest/CommandLineTools"
                ;"Octopus.TeamCity.zip" = "https://octopusdeploy.com/downloads/latest/TeamCityPlugin"
              };
@@ -45,21 +53,14 @@ Function DownloadTools{
         if($response.StatusCode -eq 302){
             $urls[$url.Name] = $response.Headers.Location;
         }
-    }
         
-    #Create the tools directory
-    New-Item $toolsPath -type directory -force | Out-Null
-    
-    Write-Output "Starting download of:"
-    $starttime = Get-Date
-    foreach($url in $urls.GetEnumerator()) {
         $remoteFileName = $url.Name
         $bareFileName = [System.IO.Path]::GetFileNameWithoutExtension($remoteFileName)
         $output = "$toolsPath\$remoteFileName";
         Write-Host -NoNewline " -" $url.Value
         $webclient.DownloadFile($url.Value, $output)
         Write-Host " $((Get-Date).Subtract($starttime).Seconds) second(s)" -foregroundcolor green
-            
+
         # expand zip files into a extensionless filename directory
         if($remoteFileName.Contains(".zip")){
             Write-Host "   - expanding archive to $toolsPath\$bareFileName" 
@@ -71,14 +72,15 @@ Function DownloadTools{
 }
 
 Function InstallServer{
-    Write-Host "Installing Octopus Deploy server to $ServerInstallPath" -ForegroundColor Green
+    
+    Write-Banner "Installing Octopus Deploy server to $ServerInstallPath" $True
     $commandArgs = "/i $OctopusServerMsi /quiet INSTALLLOCATION=$ServerInstallPath /lv $toolsPath\Octopus-Server-Install-Log.txt"
     Start-Process "msiexec" $commandArgs -Wait -Verb RunAs
 }
 
 Function ConfigureServer{
     
-    Write-Host "Configuring Octopus Deploy server" -ForegroundColor Green
+    Write-Banner "Configuring Octopus Deploy server" $True
 
     $licenseFile = Get-Content $LicenseFile;
     $licenseFileBytes = [System.Text.Encoding]::UTF8.GetBytes($licenseFile);
@@ -98,9 +100,6 @@ Function ConfigureServer{
         Write-Host $Server $command -ForegroundColor Green
         Start-Process -NoNewWindow -Wait -FilePath $Server -ArgumentList $command
     }
-    
-    Write-Host "Server Installation and configuration complete" -ForegroundColor Green
-    
 }
 
 Function GetSeverThumbprint{
@@ -109,13 +108,13 @@ Function GetSeverThumbprint{
 }
 
 Function InstallTentacle{
-    Write-Host "Installing Octopus Deploy tentacle to $TentacleInstallPath" -ForegroundColor Green
+    Write-Banner "Installing Octopus Deploy tentacle to $TentacleInstallPath" $True
     $commandArgs = "/i $OctopusTentacleServerMsi /quiet INSTALLLOCATION=$TentacleInstallPath /lv $toolsPath\Octopus-Tentacle-Install-Log.txt"
     Start-Process "msiexec" $commandArgs -Wait -Verb RunAs
 }
 
 Function ConfigureTentacle($thumbprint){
-    Write-Host "Configuring Octopus Deploy tentacle" -ForegroundColor Green
+    Write-Banner "Configuring Octopus Deploy tentacle" $True
 
     $commands = @(
     "create-instance --instance `"Tentacle`" --config `"$TentacleHomeDirectory\Tentacle.config`""
@@ -123,6 +122,7 @@ Function ConfigureTentacle($thumbprint){
     ,"configure --instance `"Tentacle`" --reset-trust"
     ,"configure --instance `"Tentacle`" --home `"$TentacleHomeDirectory`" --app `"$TentacleHomeDirectory\Applications`" --port `"10933`" --noListen `"False`""
     ,"configure --instance `"Tentacle`" --trust `"$thumbprint`""
+#,"register-with --instance `"Tentacle`" --server="http://localhost" --apiKey="API-QEWDOJCW1GQQGOVXTOYMZBIIPQ" --env="Dev" --server-comms-port="10933" --role="web" --publicHostName=$env:computername --console
     );
     
     foreach($command in $commands){
@@ -135,11 +135,9 @@ Function ConfigureTentacle($thumbprint){
     
     Write-Host "Starting Tentacle" -ForegroundColor Green
     Start-Process -NoNewWindow -Wait -FilePath $Tentacle -ArgumentList "service --instance `"Tentacle`" --install --start"
-    
-    Write-Host "Tentacle Installation and configuration complete" -ForegroundColor Green
 }
 
-Function CreateApiKey{
+Function CreateApiKey ($apiKeyName){
     
     #Adding libraries. Make sure to modify these paths acording to your environment setup.
     Add-Type -Path "$ServerInstallPath\Newtonsoft.Json.dll"
@@ -159,37 +157,71 @@ Function CreateApiKey{
     
     $UserObj = $repository.Users.GetCurrent()
     
-    $ApiObj = $repository.Users.CreateApiKey($UserObj, "Clear Measure Bootcamp")
+    $ApiObj = $repository.Users.CreateApiKey($UserObj, $apiKeyName)
     
     #Returns the API Key in clear text
     return $ApiObj.ApiKey    
 }
 
 Function CreateOctopusEnvironments($apiKey){
-    $environments = @("Dev", "QA", "Staging", "Production")
+
+    Write-Banner "Creating Octopus Deploy Environments" $True
     
     foreach($environment in $environments){
+        Write-Host " - $environment environment" -foregroundcolor green
+        
         $command = "create-environment --server=$serverUrl --apiKey=$apiKey --name=`"$environment`""
         Start-Process -NoNewWindow -Wait -FilePath $Octo -ArgumentList $command
+    }
+}
+
+Function CreateDeploymentTarget($apiKey){
+    Write-Banner "Creating Octopus Deployment Targets" $True
+    
+    foreach($environment in $environments){
+        foreach($role in $roles){
+            $displayName = "$env:computername-$environment-$role"
+            Write-Host " Creating deployment target $role in $environment" -foregroundcolor green 
+            $command = "register-with --instance `"Tentacle`" --server=`"http://localhost`" --apiKey=`"$apiKey`" --env=`"$environment`" --server-comms-port=`"10933`" --role=`"$role`" --name=`"$displayName`" --publicHostName=`"$env:computername`" --console --nologo";
+            Start-Process -NoNewWindow -Wait -FilePath $Tentacle -ArgumentList $command
+        }
+    }    
+}
+
+Function Write-Banner{
+Param(
+    [Parameter(Mandatory=$True)][string]$message,
+    [Parameter(Mandatory=$False)][string]$banner = $false,
+    [Parameter(Mandatory=$False)][string]$color = "green"
+)
+    
+    $header = "--------------------------------------------------------------------";
+    if($banner -eq $True){
+        Write-Host $header -foregroundcolor $color
+    }
+    
+    Write-Host "$message" -foregroundcolor $color
+    
+    if($banner -eq $True){
+        Write-Host $header -foregroundcolor $color
     }
 }
 
 # ** ** ** ** ** ** ** ** ** 
 #  Procedural Execution
 # ** ** ** ** ** ** ** ** ** 
-if(Test-IsLocalAdministrator){
-    Write-Host "Running Installer as Administrator" -ForegroundColor Green
-}else{
-    Write-Host "Not Local Admin: Please run Powershell as Administrator" -ForegroundColor Red
+if(-Not (Test-IsLocalAdministrator) -eq $True){
+    Write-Banner -Message "Not Local Admin: Please run Powershell as Administrator" -color red
     exit;
 }
 
-#DownloadTools;
-#InstallServer;
+DownloadTools;
+InstallServer;
 ConfigureServer;
-#$thumbprint = GetSeverThumbprint;
-#InstallTentacle;
-#ConfigureTentacle($thumbprint);
-#$apiKey = CreateApiKey;
-#Write-Host "Created API Key: $apiKey";
-#CreateOctopusEnvironments($apiKey);
+$thumbprint = GetSeverThumbprint;
+InstallTentacle;
+ConfigureTentacle($thumbprint);
+$apiKey = CreateApiKey("Clear-Measure-Bootcamp-"+(Get-Date).Ticks);
+Write-Banner "Created API Key: $apiKey" -banner $true -color Green
+CreateOctopusEnvironments($apiKey);
+CreateDeploymentTarget($apiKey);
