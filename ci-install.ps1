@@ -18,7 +18,7 @@ function Test-IsLocalAdministrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
-$environments = @("Dev", "QA", "Staging", "Production")
+$environments = @("Test", "Staging", "Production")
 $roles = @("Web", "Service")
     
 $toolsPath = "$PSScriptRoot\tools\octopus"
@@ -33,7 +33,7 @@ $Octo = "$toolsPath\octo\Octo.exe";
 
 Function DownloadTools{
     $starttime = Get-Date   
-    Write-Banner "Downloading Octopus Deploy Tools" $True
+    Write-Banner "Downloading CI / CD Tools" $True
     
     #Create the tools directory
     New-Item $toolsPath -type directory -force | Out-Null
