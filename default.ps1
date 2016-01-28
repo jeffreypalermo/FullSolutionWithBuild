@@ -13,31 +13,28 @@ properties {
 	$build_dir = "$base_dir\build"
 	$test_dir = "$build_dir\test"
 	$testCopyIgnorePath = "_ReSharper"
-	$package_dir = "$build_dir\package"	
-	$package_file = "$build_dir\latestVersion\" + $projectName +"_Package.zip"
     $runOctoPack = $env:RunOctoPack
 
     $databaseName = $projectName
-    $databaseServer = if([Environment]::GetEnvironmentVariable("dbServer","User") -eq $null) { "localhost\SQLEXPRESS2014" } else { [Environment]::GetEnvironmentVariable("dbServer","User")}
-    $databaseScripts = "$source_dir\Database\scripts"
+    $databaseServer = "localhost\SQLEXPRESS2014"
+	$databaseScripts = "$source_dir\Database\scripts"
     $hibernateConfig = "$source_dir\hibernate.cfg.xml"
     $schemaDatabaseName = $databaseName + "_schema"
     $integratedSecurity = "Integrated Security=true"
 
-	$databaseUsername = "bootcamp"
-	$databasePassword = "9Db12345678"
-    
     $connection_string = "server=$databaseserver;database=$databasename;$databaseUser;"
     $AliaSql = "$source_dir\Database\scripts\AliaSql.exe"
     $webapp_dir = "$source_dir\UI"
 
     if([string]::IsNullOrEmpty($version)) { $version = "1.0.0"}
-    if([string]::IsNullOrEmpty($projectConfig)) {$projectConfig = "Release"}
-    if([string]::IsNullOrEmpty($runOctoPack)) {$runOctoPack = "true"}
+    if([string]::IsNullOrEmpty($projectConfig)) {$projectConfig = "Debug"}
+    if([string]::IsNullOrEmpty($runOctoPack)) {$runOctoPack = "false"}
+
+	#Get-Variable -Scope Local | ForEach {Write-Host $_.Name " - " $_.Value}
 }
 
 task default -depends Init, Compile, RebuildDatabase, Test, LoadData
-task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test #, Package
+task ci -depends Init, CommonAssemblyInfo, ConnectionString, Compile, RebuildDatabase, Test
 
 task Init {
     delete_file $package_file
@@ -45,10 +42,9 @@ task Init {
     create_directory $test_dir
     create_directory $build_dir
 
-    Write-Host $projectConfig
-    Write-Host $version
-    Write-Host $runOctoPack
-
+    Write-Host "projectConfig: $projectConfig"
+    Write-Host "version: $version"
+    Write-Host "runOctoPack: $runOctoPack"
 }
 
 task ConnectionString {
@@ -63,7 +59,12 @@ task Compile -depends Init {
 	Write-Host "Beginning msbuild command:" -foregroundcolor yellow
 	Write-Host("& msbuild /t:Clean`;Rebuild /v:q /nologo /p:Configuration=$projectConfig /p:OctoPackPackageVersion=$version /p:RunOctoPack=$runOctoPack /p:OctoPackEnforceAddingFiles=true $source_dir\$projectName.sln")
     exec {
-        & msbuild /t:Clean`;Rebuild /v:n /nologo /p:Configuration=$projectConfig /p:OctoPackPackageVersion=$version /p:RunOctoPack=$runOctoPack /p:OctoPackEnforceAddingFiles=true $source_dir\$projectName.sln
+        & msbuild /t:Clean`;Rebuild `
+			/v:q /nologo `
+			/p:Configuration=$projectConfig `
+			/p:OctoPackPackageVersion=$version `
+			/p:RunOctoPack=$runOctoPack `
+			/p:OctoPackEnforceAddingFiles=true $source_dir\$projectName.sln
     }
 	Write-Host "End msbuild command" -foregroundcolor yellow 
 }
