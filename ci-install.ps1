@@ -63,8 +63,18 @@ Function DownloadTools{
 
         # expand zip files into a extensionless filename directory
         if($remoteFileName.Contains(".zip")){
-            Write-Host "   - expanding archive to $toolsPath\$bareFileName" 
-            Expand-Archive -Force -Path $output -DestinationPath "$toolsPath\$bareFileName"
+            # check powershell version, if 5+ use Expand-Archive
+            $psVersion = $PSVersionTable.PSVersion.ToString().Substring(0,1)
+            if ($psVersion -ge  5) 
+            {
+                Write-Host "   - expanding archive with Expand-Archive to $toolsPath\$bareFileName" 
+                Expand-Archive -Force -Path $output -DestinationPath "$toolsPath\$bareFileName"
+            } else {
+                # if powershell version <5, use Expand-ArchivePreWin10
+                Write-Host "   - expanding archive with Expand-ArchivePreWin10 to $toolsPath\$bareFileName" 
+                Expand-ArchivePreWin10 -File $output -Destination "$toolsPath\$bareFileName"
+            }
+
             Write-Host "   - removing $output"
             Remove-Item -Force -Path $output
         }
@@ -204,6 +214,17 @@ Param(
     
     if($banner -eq $True){
         Write-Host $header -foregroundcolor $color
+    }
+}
+
+function Expand-ArchivePreWin10($file, $destination)
+{
+    $shell = new-object -com shell.application
+    $zip = $shell.NameSpace($file)
+    
+    foreach($item in $zip.items())
+    {
+        $shell.Namespace($destination).copyhere($item, 0x10)
     }
 }
 
